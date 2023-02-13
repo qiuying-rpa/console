@@ -16,4 +16,8 @@
 | PATCH  | 部分属性更新 | 200                      | /pet/a-pet-id -X PATCH -d '{"name": "quz"}'            | 只更新 Pet 名称     |
 | DELETE | 删除         | 204                      | /pet/a-pet-id -X DELETE                                | 删除某 Pet          |
 
+### 状态码
+
+响应状态码基本采用[标准含义](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)，在三位具有大体意义的状态码后追加两位细化业务意义，比如 `20001`。
+
 ## Caveats
