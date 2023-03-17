@@ -13,6 +13,7 @@ class Process(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid4()))
     name = db.Column(db.String(128), unique=True, nullable=False)
     start_params = db.Column(db.Text)
+    nodes = db.Column(db.Text)
     desc = db.Column(db.Text)
     template = db.Column(db.String(256))
     developer_id = db.Column(db.String(36), db.ForeignKey("user.id"))

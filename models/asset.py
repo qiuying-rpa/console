@@ -14,5 +14,5 @@ class Asset(db.Model):
     name = db.Column(db.String(64), unique=True, nullable=False)
     type = db.Column(db.String(64), nullable=False)
     desc = db.Column(db.String(128))
-    detail = db.Column(db.Text, nullable=False)
+    value = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.String(36), db.ForeignKey("user.id"))
