@@ -1,4 +1,7 @@
+import importlib
 import os
+from functools import reduce
+from pathlib import Path
 
 from apiflask import APIFlask
 from models.schemas.response import BaseResponse
@@ -17,10 +20,13 @@ def create_app():
 
     with _app.app_context():
         _db = use_db(_app)
-        from models import register_all as register_model
-        register_model()
-        # import views.pet
-        # import models.pet
+
+        # register views & models
+        vms = reduce(lambda pre, curr: not pre.extend(curr) and pre, [
+            [f'{pkg}.{p.stem}' for p in Path(pkg).glob('[!_]*.py')] for pkg in ['models', 'views']], [])
+
+        for vm in vms:
+            importlib.import_module(vm)
 
         _db.create_all()
     return _app

@@ -3,3 +3,7 @@ venv
 .idea
 .vscode
 *.db
+static
+templates
+scripts
+instance
