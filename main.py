@@ -6,8 +6,6 @@ from pathlib import Path
 from apiflask import APIFlask
 from models.schemas.response import BaseResponse
 from utils.repository import use_db
-
-
 from dotenv import load_dotenv
 
 load_dotenv(verbose=True)
