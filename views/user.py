@@ -10,7 +10,7 @@ from apiflask.schemas import EmptySchema
 from models.schemas.user import UserOut, UserIn, UsersOut, UsersIn, TokenIn
 import services.user as user_services
 import services.auth as auth_services
-from utils.permisssions import require_permission
+from utils.permissions import require_permission
 
 
 class User(MethodView):

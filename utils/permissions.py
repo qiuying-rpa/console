@@ -59,13 +59,17 @@ def bind_authentication_checker(app):
 
 
 def require_permission(permission):
-    def permission_decorator(func):
-        @wraps(func)
-        def wrapped_function(**kwargs):
-            permissions = get_all_permission()
-            if permissions == "*" or permission in permissions:
-                return func(**kwargs)
-            else:
-                return {"message": 'Permission denied.'}, 403
-        return wrapped_function
-    return permission_decorator
+    if type(permission) in [str, list]:
+        def permission_decorator(func):
+            @wraps(func)
+            def wrapped_function(*args, **kwargs):
+                permissions = get_all_permission()
+                if permissions == "*" or (permission in permissions if type(permission) == str else any(
+                        map(lambda p: p in permissions, permission))):
+                    return func(*args, **kwargs)
+                else:
+                    return {"message": 'Permission denied.', 'data': None}, 403
+            return wrapped_function
+        return permission_decorator
+    else:
+        raise RuntimeError('Invalid permission')

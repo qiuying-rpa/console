@@ -23,11 +23,12 @@ def login(username, password):
 
 
 def get_all_permission():
-    user = User.query.get(g.current_user['id'])
-    if user:
-        if user.is_admin:
-            return "*"
-        else:
-            return reduce(lambda pre, curr: [*pre, *curr.permissions.split(',')], user.roles, [])
+    if g.get('current_user'):
+        user = User.query.get(g.current_user['id'])
+        if user:
+            if user.is_admin:
+                return "*"
+            else:
+                return reduce(lambda pre, curr: [*pre, *curr.permissions.split(',')], user.roles, [])
     return []
 
