@@ -10,3 +10,4 @@ instance
 *.spec
 build
 dist
+.pytest_cache

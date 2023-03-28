@@ -50,7 +50,6 @@ class Pet(MethodView):
 class Pets(MethodView):
 
     @app.output(PetsOut, status_code=200)
-    @require_permission('pet:retrieve')
     def get(self):
         pets = pet_service.find_all()
         return {'data': {'pets': pets}}

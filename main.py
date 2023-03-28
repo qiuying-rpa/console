@@ -6,6 +6,7 @@ from pathlib import Path
 from apiflask import APIFlask
 from models.schemas.response import BaseResponse
 from utils.repository import use_db
+from utils.common import get_conf
 from dotenv import load_dotenv
 
 load_dotenv(verbose=True)
@@ -13,7 +14,7 @@ load_dotenv(verbose=True)
 
 def create_app():
     _app = APIFlask(__name__)
-    _app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+    _app.config['SQLALCHEMY_DATABASE_URI'] = get_conf().get('db').get('sqlite_url')
     _app.config["BASE_RESPONSE_SCHEMA"] = BaseResponse
 
     with _app.app_context():

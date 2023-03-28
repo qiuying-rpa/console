@@ -34,6 +34,12 @@ def create_admin() -> tuple[int, str]:
         return 0, admin.id
 
 
+def delete_admin():
+    admin = User.query.filter(User.is_admin.is_(True)).first()
+    if admin:
+        repository.delete_one(User, admin.id)
+
+
 def find_user(user_id: str) -> User:
     user = repository.find_one(User, user_id)
     return user
@@ -44,14 +50,14 @@ def list_all() -> list:
 
 
 def update_one(user_id: str, props: dict) -> str:
-    user = User.query.get(user_id)
+    user = repository.find_one(User, user_id)
     direct_props = {**props}
     if 'roles' in direct_props:
         del direct_props['roles']
         roles = Role.query.filter(Role.id.in_(props['roles'])).all()
         user.roles = roles
         db.session.commit()
-    result = repository.update_one(User, user_id, direct_props)
+    result = repository.update_one(User, user_id, **direct_props)
     return '' if result else 'Fail to update.'
 
 
