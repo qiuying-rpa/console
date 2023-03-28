@@ -7,10 +7,11 @@ Created at 2023/3/24 9:26
 import jwt
 from typing import Union
 from datetime import datetime, timedelta
+from utils.common import get_conf
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-jwt_secret = '23083B133BD91002551CBE0B80E08133'
+jwt_secret = get_conf().get('app').get('jwt_secret')
 
 
 def gen_token(payload=None, expiry=None) -> str:

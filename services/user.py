@@ -7,10 +7,12 @@ Created at 2023/3/24 10:48
 from models.user import User
 from models.role import Role
 from utils import repository
+from utils.common import get_conf
 from utils.repository import use_db
 from utils.encrypt import gen_password_hash
 
 db = use_db()
+admin_password = get_conf().get('app').get('admin_password')
 
 
 def create_one(mail: str, password: str, name: str = "", tel: str = "", is_admin: bool = False) -> tuple[int, str]:
@@ -27,7 +29,7 @@ def create_one(mail: str, password: str, name: str = "", tel: str = "", is_admin
 def create_admin() -> tuple[int, str]:
     admin = User.query.filter(User.is_admin.is_(True)).first()
     if not admin:
-        create_one("admin@qiuying.com", '123456', is_admin=True)
+        create_one("admin", admin_password, is_admin=True)
     else:
         return 0, admin.id
 
@@ -49,9 +51,7 @@ def update_one(user_id: str, props: dict) -> str:
         roles = Role.query.filter(Role.id.in_(props['roles'])).all()
         user.roles = roles
         db.session.commit()
-    print(222)
     result = repository.update_one(User, user_id, direct_props)
-    print(333)
     return '' if result else 'Fail to update.'
 
 

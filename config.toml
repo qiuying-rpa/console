@@ -1,0 +1,3 @@
+[app]
+jwt_secret = '23083B133BD91002551CBE0B80E08133'
+admin_password = '123456'
