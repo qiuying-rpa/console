@@ -5,7 +5,7 @@ from pathlib import Path
 
 from apiflask import APIFlask
 from models.schemas.response import BaseResponse
-from utils.repository import use_db
+from utils.repository import use_db, init_redis_conn_pool
 from utils.common import get_conf
 from dotenv import load_dotenv
 
@@ -16,6 +16,9 @@ def create_app():
     _app = APIFlask(__name__)
     _app.config['SQLALCHEMY_DATABASE_URI'] = get_conf().get('db').get('sqlite_url')
     _app.config["BASE_RESPONSE_SCHEMA"] = BaseResponse
+    redis_url = get_conf().get('db').get('redis_url')
+    print(redis_url)
+    init_redis_conn_pool(redis_url)
 
     with _app.app_context():
         _db = use_db(_app)

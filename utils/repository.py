@@ -4,10 +4,12 @@ By Allen Tao
 Created at 2023/02/10 18:31
 """
 from typing import Union
-
+from redis import Redis, ConnectionPool
 from flask_sqlalchemy import SQLAlchemy
 
+
 _db: Union[SQLAlchemy, None] = None
+redis_conn_pool: Union[ConnectionPool] = None
 
 
 def use_db(app=None):
@@ -81,4 +83,16 @@ def delete_many(model, many_ids):
     """Delete many"""
     [_db.session.delete(one) for one in find_many(model, many_ids)]
     _db.session.commit()
+
+
+def init_redis_conn_pool(redis_url):
+    """init redis connection pool"""
+    global redis_conn_pool
+    redis_conn_pool = ConnectionPool.from_url(url=redis_url, decode_responses=True)
+
+
+def use_redis() -> Redis:
+    """get redis connection instance."""
+    redis_conn = Redis(connection_pool=redis_conn_pool)
+    return redis_conn
 
