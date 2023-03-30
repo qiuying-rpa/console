@@ -4,3 +4,8 @@ admin_password = '123456'
 [db]
 sqlite_url = 'sqlite:///sqlite.db'
 redis_url = 'redis://localhost:6379/'
+[mail]
+username = '335191573@qq.com'
+password = ''
+server = 'smtp.qq.com'
+port = 465

@@ -3,10 +3,12 @@
 By Ziqiu Li
 Created at 2023/3/24 10:48
 """
+import random
 
 from models.user import User
 from models.role import Role
 from utils import repository
+from utils.mail import send_mail
 from utils.common import get_conf
 from utils.repository import use_db
 from utils.encrypt import gen_password_hash
@@ -15,11 +17,17 @@ db = use_db()
 admin_password = get_conf().get('app').get('admin_password')
 
 
-def create_one(mail: str, password: str, name: str = "", tel: str = "", is_admin: bool = False) -> tuple[int, str]:
+def create_one(mail: str, password: str, name: str, tel: str, is_admin: bool, verification_code: int) -> tuple[int, str]:
     user = User.query.filter_by(mail=mail).first()
     if user:
         return 1, "Mail already exists."
     else:
+        if not is_admin:
+            redis_conn = repository.use_redis()
+            value = redis_conn.get(mail)
+            redis_conn.delete(mail)
+            if verification_code != value:
+                return 2, 'Invalid verification code.'
         name = name if name else mail.split('@')[0]
         user = repository.create_one(User, mail=mail, password=gen_password_hash(password),
                                      name=name, tel=tel, is_admin=is_admin)
@@ -65,4 +73,10 @@ def delete_many(user_ids: list[str]) -> None:
     repository.delete_many(User, user_ids)
 
 
+def send_verification_code(recipient: str):
+    redis_conn = repository.use_redis()
+    verification_code = random.randint(100000, 999999)
+    mail_body = f'您好，您的验证码是：{verification_code}，请在5分钟内进行验证。若非本人操作，请无视。'
+    redis_conn.set(name=recipient, value=verification_code, ex=300)
+    send_mail('秋英邮箱验证码', recipient=recipient, body=mail_body)
 

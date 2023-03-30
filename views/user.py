@@ -3,11 +3,14 @@
 By Ziqiu Li
 Created at 2023/3/24 14:43
 """
+import random
+
 from flask import current_app as app
 from apiflask.views import MethodView
 from apiflask.schemas import EmptySchema
 
 from models.schemas.user import UserOut, UserIn, UsersOut, UsersIn, TokenIn
+from models.schemas.verification import VerificationIn
 import services.user as user_services
 import services.auth as auth_services
 from utils.permissions import require_permission
@@ -23,9 +26,12 @@ class User(MethodView):
 
     @app.input(UserIn)
     def post(self, user_in: dict):
-        print(user_in.get('is_admin', False))
-        code, result = user_services.create_one(user_in['mail'], user_in['password'],
-                                                user_in.get('name'), user_in.get('tel'), user_in.get('is_admin', False))
+        code, result = user_services.create_one(user_in['mail'],
+                                                user_in['password'],
+                                                user_in.get('name'),
+                                                user_in.get('tel'),
+                                                user_in.get('is_admin', False),
+                                                user_in.get('verification_code'))
         if code == 0:
             return {"data": result, "message": "Created."}, 201
         else:
@@ -33,9 +39,7 @@ class User(MethodView):
 
     @app.input(UserIn)
     def put(self, user_id: str, user_in: dict):
-        print(user_id, user_in)
         result = user_services.update_one(user_id, user_in)
-        print(result)
         if result:
             return {"message": result}, 409
         return {"message": "Updated."}
@@ -65,7 +69,15 @@ class Token(MethodView):
             return {"data": {"token": result}}, 200
 
 
+class Verification(MethodView):
+    @app.input(VerificationIn)
+    @app.output(EmptySchema, status_code=204)
+    def post(self, verification_in):
+        user_services.send_verification_code(verification_in['mail'])
+
+
 app.add_url_rule('/user/<user_id>', view_func=User.as_view('user'))
 app.add_url_rule('/user', view_func=User.as_view('createUser'))
 app.add_url_rule('/users', view_func=Users.as_view('users'))
 app.add_url_rule('/token', view_func=Token.as_view('login'))
+app.add_url_rule('/verification', view_func=Verification.as_view('verification'))
