@@ -136,3 +136,9 @@ def test_delete_users():
     res = client.get(BASE_URL + '/users')
     users = res.get_json().get('data')["users"]
     assert 0 == len(users)
+
+
+def test_verification_code():
+    res = client.get(BASE_URL + '/verification')
+
+    assert res.status_code == 201

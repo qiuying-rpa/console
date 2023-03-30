@@ -9,7 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 _db: Union[SQLAlchemy, None] = None
-redis_conn_pool: Union[ConnectionPool] = None
+redis_conn_pool: Union[ConnectionPool, None] = None
 
 
 def use_db(app=None):

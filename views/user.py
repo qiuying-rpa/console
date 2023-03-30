@@ -3,8 +3,6 @@
 By Ziqiu Li
 Created at 2023/3/24 14:43
 """
-import random
-
 from flask import current_app as app
 from apiflask.views import MethodView
 from apiflask.schemas import EmptySchema
@@ -13,7 +11,6 @@ from models.schemas.user import UserOut, UserIn, UsersOut, UsersIn, TokenIn
 from models.schemas.verification import VerificationIn
 import services.user as user_services
 import services.auth as auth_services
-from utils.permissions import require_permission
 
 
 class User(MethodView):
@@ -74,6 +71,7 @@ class Verification(MethodView):
     @app.output(EmptySchema, status_code=204)
     def post(self, verification_in):
         user_services.send_verification_code(verification_in['mail'])
+        return {'message': 'done.'}, 201
 
 
 app.add_url_rule('/user/<user_id>', view_func=User.as_view('user'))

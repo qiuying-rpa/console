@@ -8,7 +8,7 @@ import random
 from models.user import User
 from models.role import Role
 from utils import repository
-from utils.mail import send_mail
+from utils.email import send_mail
 from utils.common import get_conf
 from utils.repository import use_db
 from utils.encrypt import gen_password_hash
@@ -76,7 +76,7 @@ def delete_many(user_ids: list[str]) -> None:
 def send_verification_code(recipient: str):
     redis_conn = repository.use_redis()
     verification_code = random.randint(100000, 999999)
-    mail_body = f'您好，您的验证码是：{verification_code}，请在5分钟内进行验证。若非本人操作，请无视。'
+    mail_content = f'您好，您的验证码是：{verification_code}，请在5分钟内进行验证。若非本人操作，请无视。'
     redis_conn.set(name=recipient, value=verification_code, ex=300)
-    send_mail('秋英邮箱验证码', recipient=recipient, body=mail_body)
+    return send_mail('秋英邮箱验证码: ', recipients=[recipient], content=mail_content)
 
