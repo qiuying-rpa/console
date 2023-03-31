@@ -3,18 +3,21 @@
 By Ziqiu Li
 Created at 2023/3/30 9:01
 """
-from typing import Union
 import smtplib
 from smtplib import SMTP_SSL
 from email.utils import formataddr
+from email.utils import parseaddr
 from email.header import Header
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
+from typing import Union
 
 from utils.common import get_conf
 
 
-def send_mail(subject, recipients, content, attachments=None):
+def send_mail(subject: str, recipients: list[str], content: str,
+              attachments: Union[None, list[tuple[bytes, str]]] = None):
     if attachments is None:
         attachments = []
     host = get_conf().get('email').get('host')
@@ -27,8 +30,13 @@ def send_mail(subject, recipients, content, attachments=None):
 
     mime['Subject'] = Header(subject, 'utf-8')
     mime['From'] = formataddr((sender, username))
-    mime['To'] = Header('; '.join(recipients), 'utf-8')
+    mime['To'] = ';'.join([formataddr(parseaddr(r)) for r in recipients])
     mime.attach(MIMEText(content, 'plain', 'utf-8'))
+
+    for file_bytes, file_name in attachments:
+        attachment = MIMEApplication(file_bytes)
+        attachment.add_header('Content-Disposition', 'attachment', filename=file_name)
+        mime.attach(attachment)
 
     try:
         smtp = SMTP_SSL(host, port)
