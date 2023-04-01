@@ -7,15 +7,15 @@ Created at 2023/3/24 10:48
 from functools import wraps
 from flask import request, g
 from services.auth import get_all_permission
-from utils.encrypt import verify_token, gen_token
-from datetime import datetime, timedelta
+from utils.common import get_conf
+from utils.encrypt import verify_token
 
 
 def bind_authentication_checker(app):
     """Bind authentication checker"""
 
     def is_white(path: str):
-        white_list = ['/auth', '/static']
+        white_list = ['/token', '/static']
         for w in white_list:
             if path.startswith(w):
                 return True
@@ -23,35 +23,27 @@ def bind_authentication_checker(app):
 
     def before_checker():
         app.logger.info('[E]..' + request.path)
-        token = request.headers.get('x-access-token')
+        token = request.headers.get(get_conf().get('app').get('access_token_key'))
         if token:
-            res = verify_token(token)
-            if type(res) == str:
-                app.logger.info('Invalid token' + res)
-                return {'message': res}, 400
-            else:
+            code, res = verify_token(token)
+            if code == 0:
                 app.logger.info('current_user:')
                 app.logger.info(res)
                 g.current_user = res
-                return
+            else:
+                app.logger.info('Invalid token: ' + res)
+                if code == 1:
+                    return {'message': res}, 426
+                else:
+                    return {'message': res}, 400
         elif is_white(request.path):
             app.logger.info('This is a public route.')
-            return
         else:
             app.logger.info('Unauthenticated')
             return {'message': 'Unauthenticated'}, 401
 
     def after_checker(response):
-        """Token updating"""
         app.logger.info('[X]..' + request.path)
-        if response.status == 200:
-            payload = verify_token(request.headers.get('Authorization'))
-            valid_delta = datetime.fromtimestamp(payload['exp']) - datetime.now()
-            if valid_delta <= timedelta(minutes=5):
-                del payload['exp']
-                new_token = gen_token(payload)
-                response.data['token'] = new_token
-                return {'data': response.data}, 210
         return response
 
     app.before_request(before_checker)

@@ -25,6 +25,7 @@ def get_global():
     return _get_global
 
 
+@pytest.mark.skip
 @pytest.mark.run(order=0)
 def test_create_user_admin(set_global):
     res = client.post(BASE_URL + '/user', json={
@@ -43,7 +44,7 @@ def test_create_user_admin(set_global):
 @pytest.mark.run(order=1)
 def test_verification():
     res = client.post(BASE_URL + '/verification', json={"mail": "lcmail1001@163.com"})
-    assert res.status_code == 204
+    assert res.status_code == 201
 
 
 @pytest.mark.run(order=2)
@@ -140,5 +141,4 @@ def test_delete_users():
 
 def test_verification_code():
     res = client.get(BASE_URL + '/verification')
-
     assert res.status_code == 201

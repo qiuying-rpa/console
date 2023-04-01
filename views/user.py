@@ -7,7 +7,8 @@ from flask import current_app as app
 from apiflask.views import MethodView
 from apiflask.schemas import EmptySchema
 
-from models.schemas.user import UserOut, UserIn, UsersOut, UsersIn, TokenIn
+from models.schemas.auth import TokenIn, RefreshTokenIn
+from models.schemas.user import UserOut, UserIn, UsersOut, UsersIn
 from models.schemas.verification import VerificationIn
 import services.user as user_services
 import services.auth as auth_services
@@ -59,16 +60,30 @@ class Token(MethodView):
 
     @app.input(TokenIn)
     def post(self, token_in):
-        code, result = auth_services.login(token_in['mail'], token_in['password'])
+        code, res = auth_services.login(token_in['mail'], token_in['password'])
         if code:
-            return {"message": result}, 401
+            return {"message": res}, 400
         else:
-            return {"data": {"token": result}}, 200
+            return {"data": {
+                'access_token': res[0],
+                'refresh_token': res[1]
+            }}, 201
+
+    @app.input(RefreshTokenIn)
+    def put(self, refresh_token_in):
+        code, res = auth_services.refresh(refresh_token_in['user_id'], refresh_token_in['refresh_token'])
+        if code:
+            return {"message": res}, 400
+        else:
+            return {"data": {
+                'access_token': res[0],
+                'refresh_token': res[1]
+            }}, 200
 
 
 class Verification(MethodView):
     @app.input(VerificationIn)
-    @app.output(EmptySchema, status_code=204)
+    @app.output(EmptySchema, status_code=201)
     def post(self, verification_in):
         user_services.send_verification_code(verification_in['mail'])
         return {'message': 'done.'}, 201

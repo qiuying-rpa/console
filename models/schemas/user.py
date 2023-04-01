@@ -4,7 +4,7 @@ By Ziqiu Li
 Created at 2023/3/24 14:18
 """
 from apiflask import Schema
-from apiflask.fields import String, List, Nested, UUID, Boolean, Integer
+from apiflask.fields import String, List, Nested, UUID, Boolean
 
 
 class UserOut(Schema):
@@ -31,8 +31,3 @@ class UserIn(Schema):
 
 class UsersIn(Schema):
     ids = List(String())
-
-
-class TokenIn(Schema):
-    mail = String(required=True)
-    password = String(required=True)
