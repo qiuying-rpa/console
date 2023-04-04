@@ -5,38 +5,33 @@ Created at 2023/3/24 9:26
 """
 
 import jwt
+import hashlib
 from typing import Union
 from datetime import datetime, timedelta
 from utils.common import get_conf
-from werkzeug.security import generate_password_hash, check_password_hash
 
 
-jwt_secret = get_conf().get('app').get('jwt_secret')
-
-
-def gen_token(payload=None, expiry=None) -> str:
-
-    if payload is None:
-        payload = {}
-    if expiry is None:
-        expiry = (datetime.now() + timedelta(hours=3)).timestamp()
-    token = jwt.encode({**payload, 'exp': expiry}, jwt_secret)
+def gen_token(payload, expiry_seconds) -> str:
+    jwt_secret = get_conf().get('app').get('jwt_secret')
+    expiry = (datetime.now() + timedelta(seconds=expiry_seconds)).timestamp()
+    token = jwt.encode({**payload, 'exp': expiry}, jwt_secret, algorithm='HS256')
     return token
 
 
-def verify_token(token) -> Union[str, dict]:
+def verify_token(token) -> tuple[int, Union[dict, str]]:
+    jwt_secret = get_conf().get('app').get('jwt_secret')
     try:
-        payload = jwt.decode(token, jwt_secret, algorithms=['Hs256'])
-        return payload
-    except jwt.InvalidTokenError:
-        return 'Invalid token.'
+        payload = jwt.decode(token, jwt_secret, algorithms=['HS256'])
+        return 0, payload
     except jwt.ExpiredSignatureError:
-        return 'Out of date.'
+        return 1, 'Out of date.'
+    except jwt.InvalidTokenError:
+        return 2, 'Invalid token.'
 
 
 def gen_password_hash(password: str) -> str:
-    return generate_password_hash(password)
+    return hashlib.sha256(password.encode()).hexdigest()
 
 
 def verify_password_hash(pwd_hash: str, password: str) -> bool:
-    return check_password_hash(pwd_hash, password)
+    return hashlib.sha256(password.encode()).hexdigest() == pwd_hash

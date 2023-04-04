@@ -30,6 +30,10 @@ def create_app():
             importlib.import_module(vm)
 
         _db.create_all()
+
+        from utils.permissions import bind_authentication_checker
+        bind_authentication_checker(_app)
+
     return _app
 
 

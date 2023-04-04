@@ -1,6 +1,9 @@
 [app]
 jwt_secret = '23083B133BD91002551CBE0B80E08133'
 admin_password = '123456'
+access_token_key = 'x-access-token'
+access_expire = 3600
+refresh_expire = 86400
 [db]
 sqlite_url = 'sqlite:///sqlite.db'
 redis_url = 'redis://localhost:6379/'
