@@ -10,13 +10,14 @@ from functools import reduce
 from models.user import User
 from utils import repository
 from utils.common import get_conf
-from utils.encrypt import verify_password_hash, gen_token, verify_token
+from utils.encrypt import gen_token, verify_token
+from werkzeug.security import check_password_hash
 
 
 def login(username, password):
     user = User.query.filter_by(mail=username).first()
     if user:
-        verify_result = verify_password_hash(user.password, password)
+        verify_result = check_password_hash(user.password, password)
         if verify_result:
             return 0, gen_token_pair(user.id, username)
         else:

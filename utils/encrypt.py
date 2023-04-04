@@ -29,9 +29,3 @@ def verify_token(token) -> tuple[int, Union[dict, str]]:
         return 2, 'Invalid token.'
 
 
-def gen_password_hash(password: str) -> str:
-    return hashlib.sha256(password.encode()).hexdigest()
-
-
-def verify_password_hash(pwd_hash: str, password: str) -> bool:
-    return hashlib.sha256(password.encode()).hexdigest() == pwd_hash

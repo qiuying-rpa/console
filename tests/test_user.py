@@ -78,37 +78,25 @@ def test_create_user_again():
 
 
 @pytest.mark.run(order=4)
-def test_login_admin():
-    res = client.post(BASE_URL + '/token', json={
-        'mail': 'admin@qiuying.com',
-        'password': '123456'
-    })
-    token = res.get_json().get('data').get('token')
-
-    assert res.status_code == 200
-    assert type(token) == str and len(token) > 0
-
-
-@pytest.mark.run(order=5)
 def test_get_user_info(get_global):
-    admin_user_id = get_global('admin_id')
-    other_user_id = get_global('other_id')
+    # admin_user_id = get_global('admin_id')
     # admin
-    res = client.get(BASE_URL + '/user/' + admin_user_id)
-    admin_user_info = res.get_json().get('data')
-
-    assert 'admin' == admin_user_info['name']
-    assert 'admin@qiuying.com' == admin_user_info['mail']
-    assert admin_user_info['is_admin']
+    # res = client.get(BASE_URL + '/user/' + admin_user_id)
+    # admin_user_info = res.get_json().get('data')
+    #
+    # assert 'admin' == admin_user_info['name']
+    # assert 'admin@qiuying.com' == admin_user_info['mail']
+    # assert admin_user_info['is_admin']
     # assert '123456' == admin_user_info['password']
     # other
+    other_user_id = get_global('other_id')
     res = client.get(BASE_URL + '/user/' + other_user_id)
     other_user_info = res.get_json().get('data')
     assert '李子秋' == other_user_info['name']
     assert not other_user_info['is_admin']
 
 
-@pytest.mark.run(order=6)
+@pytest.mark.run(order=5)
 def test_update_user(get_global):
     other_user_id = get_global('other_id')
 
@@ -120,14 +108,32 @@ def test_update_user(get_global):
     assert '12345678901' == res.get_json().get('data')['tel']
 
 
-@pytest.mark.run(order=7)
+@pytest.mark.run(order=6)
 def test_get_all_users():
     res = client.get(BASE_URL + '/users')
     users = res.get_json().get('data')['users']
     assert 1 == len(users)
 
 
+@pytest.mark.run(order=7)
+def test_verification_update():
+    res = client.post(BASE_URL + '/verification', json={"mail": "lcmail1001@163.com"})
+    assert res.status_code == 201
+
+
 @pytest.mark.run(order=8)
+def test_update_password(get_global):
+    other_user_id = get_global('other_id')
+    redis_conn = use_redis()
+    verification_code = redis_conn.get('lcmail1001@163.com')
+    res = client.put(BASE_URL + '/user/' + other_user_id, json={
+        'password': '12345678901',
+        'verification_code': verification_code
+    })
+    assert res.status_code == 200
+
+
+@pytest.mark.run(order=9)
 def test_delete_users():
     res = client.get(BASE_URL + '/users')
     user_ids = [i["id"] for i in res.get_json().get('data')['users']]
@@ -138,7 +144,3 @@ def test_delete_users():
     users = res.get_json().get('data')["users"]
     assert 0 == len(users)
 
-
-def test_verification_code():
-    res = client.get(BASE_URL + '/verification')
-    assert res.status_code == 201

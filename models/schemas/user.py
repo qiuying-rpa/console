@@ -27,6 +27,7 @@ class UserIn(Schema):
     tel = String()
     is_admin = Boolean()
     verification_code = String()
+    roles = String()
 
 
 class UsersIn(Schema):

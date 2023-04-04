@@ -31,6 +31,9 @@ def create_app():
 
         _db.create_all()
 
+        from services.user import create_admin
+        create_admin()
+
         from utils.permissions import bind_authentication_checker
         bind_authentication_checker(_app)
 
