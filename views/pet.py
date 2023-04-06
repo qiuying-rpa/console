@@ -9,6 +9,7 @@ from apiflask.schemas import EmptySchema
 
 from models.schemas.pet import PetOut, PetIn, PetsOut, PetsIn
 import services.pet as pet_service
+from utils.permissions import require_permission
 
 
 class Pet(MethodView):
@@ -48,7 +49,7 @@ class Pet(MethodView):
 
 class Pets(MethodView):
 
-    @app.output(PetsOut)
+    @app.output(PetsOut, status_code=200)
     def get(self):
         pets = pet_service.find_all()
         return {'data': {'pets': pets}}

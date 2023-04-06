@@ -6,6 +6,7 @@ Created at 2023/02/10 15:36
 from dotenv import load_dotenv
 
 load_dotenv(verbose=True)
+_data = {}
 
 
 def create_test_client():
