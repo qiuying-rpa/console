@@ -5,7 +5,7 @@ access_token_key = 'x-access-token'
 access_expire = 3600
 refresh_expire = 86400
 [db]
-sqlite_url = 'sqlite:///sqlite.db'
+db_url = 'sqlite:///sqlite.db'
 redis_url = 'redis://localhost:6379/'
 [email]
 username = 'noreply@qiuying.tech'
