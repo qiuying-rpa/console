@@ -17,7 +17,8 @@ db = use_db()
 admin_password = get_conf().get('app').get('admin_password')
 
 
-def create_one(mail: str, password: str, name: str = '', tel: str = '', is_admin: bool = False, verification_code: str = '') -> tuple[int, str]:
+def create_one(mail: str, password: str, name: str = '', tel: str = '',
+               is_admin: bool = False, verification_code: str = '') -> tuple[int, str]:
     user = User.query.filter_by(mail=mail).first()
     if user:
         return 1, "Mail already exists."

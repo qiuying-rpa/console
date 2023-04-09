@@ -20,7 +20,7 @@ class User(MethodView):
     def get(self, user_id: str):
         user = user_services.find_user(user_id)
         if user:
-            return {"data": user}
+            return {'data': user}
 
     @app.input(UserIn)
     def post(self, user_in: dict):
@@ -31,16 +31,16 @@ class User(MethodView):
                                                 user_in.get('is_admin', False),
                                                 user_in.get('verification_code'))
         if code == 0:
-            return {"data": result, "message": "Created."}, 201
+            return {'data': result, 'message': 'Created.'}, 201
         else:
-            return {"message": result}, 409
+            return {'message': result, 'code': code}
 
     @app.input(UserIn)
     def put(self, user_id: str, user_in: dict):
         result = user_services.update_one(user_id, user_in)
         if result:
-            return {"message": result}, 409
-        return {"message": "Updated."}
+            return {'message': result}
+        return {'message': 'Updated.'}
 
 
 class Users(MethodView):
@@ -51,7 +51,7 @@ class Users(MethodView):
         return {'data': {'users': users}}
 
     @app.input(UsersIn)
-    @app.output(EmptySchema, status_code=204)
+    @app.output(EmptySchema)
     def delete(self, users_in):
         user_services.delete_many(users_in.get('ids'))
 
@@ -62,9 +62,9 @@ class Token(MethodView):
     def post(self, token_in):
         code, res = auth_services.login(token_in['mail'], token_in['password'])
         if code:
-            return {"message": res}, 400
+            return {'message': res, 'code': code}
         else:
-            return {"data": {
+            return {'data': {
                 'access_token': res[0],
                 'refresh_token': res[1]
             }}, 201
@@ -73,9 +73,9 @@ class Token(MethodView):
     def put(self, refresh_token_in):
         code, res = auth_services.refresh(refresh_token_in['user_id'], refresh_token_in['refresh_token'])
         if code:
-            return {"message": res}, 400
+            return {'message': res, 'code': code}
         else:
-            return {"data": {
+            return {'data': {
                 'access_token': res[0],
                 'refresh_token': res[1]
             }}, 200
