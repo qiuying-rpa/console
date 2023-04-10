@@ -9,7 +9,7 @@ from utils.repository import use_db
 db = use_db()
 
 
-class paramConfig(db.Model):
+class ParamConfig(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid4()))
     name = db.Column(db.String(128), nullable=False)
     params = db.Column(db.Text)

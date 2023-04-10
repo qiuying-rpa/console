@@ -5,7 +5,6 @@ Created at 2023/3/24 9:26
 """
 
 import jwt
-import hashlib
 from typing import Union
 from datetime import datetime, timedelta
 from utils.common import get_conf

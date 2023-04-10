@@ -29,7 +29,7 @@ def get_global():
 @pytest.mark.run(order=0)
 def test_create_user_admin(set_global):
     res = client.post(BASE_URL + '/user', json={
-        'mail': 'admin@qiuying.com',
+        'email': 'admin@qiuying.com',
         'password': '123456',
         'is_admin': True
     })
@@ -43,7 +43,7 @@ def test_create_user_admin(set_global):
 
 @pytest.mark.run(order=1)
 def test_verification():
-    res = client.post(BASE_URL + '/verification', json={"mail": "lcmail1001@163.com"})
+    res = client.post(BASE_URL + '/verification', json={"email": "lcmail1001@163.com"})
     assert res.status_code == 201
 
 
@@ -53,7 +53,7 @@ def test_create_user(set_global):
     verification_code = redis_conn.get('lcmail1001@163.com')
     res = client.post(BASE_URL + '/user', json={
         'name': '李子秋',
-        'mail': 'lcmail1001@163.com',
+        'email': 'lcmail1001@163.com',
         'password': '654321',
         'is_admin': False,
         'verification_code': verification_code
@@ -70,7 +70,7 @@ def test_create_user(set_global):
 def test_create_user_again():
     res = client.post(BASE_URL + '/user', json={
         'name': '李子秋',
-        'mail': 'lcmail1001@163.com',
+        'email': 'lcmail1001@163.com',
         'password': '1',
     })
 
@@ -85,7 +85,7 @@ def test_get_user_info(get_global):
     # admin_user_info = res.get_json().get('data')
     #
     # assert 'admin' == admin_user_info['name']
-    # assert 'admin@qiuying.com' == admin_user_info['mail']
+    # assert 'admin@qiuying.com' == admin_user_info['email']
     # assert admin_user_info['is_admin']
     # assert '123456' == admin_user_info['password']
     # other
@@ -117,7 +117,7 @@ def test_get_all_users():
 
 @pytest.mark.run(order=7)
 def test_verification_update():
-    res = client.post(BASE_URL + '/verification', json={"mail": "lcmail1001@163.com"})
+    res = client.post(BASE_URL + '/verification', json={"email": "lcmail1001@163.com"})
     assert res.status_code == 201
 
 

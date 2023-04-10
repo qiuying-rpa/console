@@ -4,6 +4,8 @@ admin_password = '123456'
 access_token_key = 'x-access-token'
 access_expire = 3600
 refresh_expire = 86400
+default_role_name = '默认角色'
+default_role_desc = '默认角色，无法删除。'
 [db]
 db_url = 'sqlite:///sqlite.db'
 redis_url = 'redis://localhost:6379/'

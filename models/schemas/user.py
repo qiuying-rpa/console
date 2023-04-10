@@ -11,8 +11,6 @@ class UserOut(Schema):
     id = UUID()
     name = String()
     mail = String()
-    tel = String()
-    is_admin = Boolean()
     roles = List(String())
 
 
@@ -28,7 +26,3 @@ class UserIn(Schema):
     is_admin = Boolean()
     verification_code = String()
     roles = String()
-
-
-class UsersIn(Schema):
-    ids = List(String())
