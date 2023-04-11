@@ -3,13 +3,13 @@
 By Ziqiu Li
 Created at 2023/3/24 11:00
 """
-from datetime import datetime, timedelta
-
+import random
 from flask import g
 from functools import reduce
 from models.user import User
 from utils import repository
 from utils.common import get_conf
+from utils.email import send_mail
 from utils.encrypt import gen_token, verify_token
 from werkzeug.security import check_password_hash
 
@@ -52,6 +52,13 @@ def get_all_permission():
             if user.is_admin:
                 return "*"
             else:
-                return reduce(lambda pre, curr: [*pre, *curr.permissions.split(',')], user.roles, [])
+                return reduce(lambda pre, curr: [*pre, *curr.permissions.get('actions', [])], user.roles, [])
     return []
 
+
+def send_verification_code(recipient: str):
+    redis_conn = repository.use_redis()
+    verification_code = random.randint(100000, 999999)
+    mail_content = f'您好，您的验证码是：{verification_code}，请在5分钟内进行验证。若非本人操作，请无视。'
+    redis_conn.set(name=recipient, value=verification_code, ex=300)
+    return send_mail('秋英邮箱验证码: ', recipients=[recipient], content=mail_content)

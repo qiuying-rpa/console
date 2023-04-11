@@ -13,15 +13,15 @@ load_dotenv(verbose=True)
 
 
 def create_app():
-    _app = APIFlask(__name__)
-    _app.config['SQLALCHEMY_DATABASE_URI'] = get_conf().get('db').get('db_url')
-    _app.config["BASE_RESPONSE_SCHEMA"] = BaseResponse
+    __app = APIFlask(__name__)
+    __app.config['SQLALCHEMY_DATABASE_URI'] = get_conf().get('db').get('db_url')
+    __app.config["BASE_RESPONSE_SCHEMA"] = BaseResponse
 
     redis_url = get_conf().get('db').get('redis_url')
     init_redis_conn_pool(redis_url)
 
-    with _app.app_context():
-        _db = use_db(_app)
+    with __app.app_context():
+        __db = use_db(__app)
 
         # register views & models
         vms = reduce(lambda pre, curr: not pre.extend(curr) and pre, [
@@ -29,16 +29,19 @@ def create_app():
         for vm in vms:
             importlib.import_module(vm)
 
-        _db.create_all()
+        __db.create_all()
 
         from utils.permissions import bind_authentication_checker
-        bind_authentication_checker(_app)
+        bind_authentication_checker(__app)
 
-    return _app
+    return __app
 
 
 app = create_app()
 
 if __name__ == '__main':
     from services.user import create_admin
+    from services.role import create_default
+    
     create_admin()
+    create_default()

@@ -8,7 +8,6 @@ import random
 from models.user import User
 from models.role import Role
 from utils import repository
-from utils.email import send_mail
 from utils.common import get_conf
 from utils.repository import use_db
 from werkzeug.security import generate_password_hash
@@ -17,21 +16,29 @@ db = use_db()
 admin_password = get_conf().get('app').get('admin_password')
 
 
-def create_one(mail: str, password: str, name: str = '', tel: str = '', is_admin: bool = False, verification_code: str = '') -> tuple[int, str]:
-    user = User.query.filter_by(mail=mail).first()
+def create_one(email: str, password: str, name: str = '',
+               is_admin: bool = False, verification_code: str = '') -> tuple[int, str]:
+    user = User.query.filter_by(email=email).first()
     if user:
-        return 1, "Mail already exists."
+        return 1, "Email already used."
     else:
         if not is_admin:
             redis_conn = repository.use_redis()
-            value = redis_conn.get(mail)
-            redis_conn.delete(mail)
+            value = redis_conn.get(email)
+            redis_conn.delete(email)
             if verification_code != value:
                 return 2, 'Invalid verification code.'
-        name = name if name else mail.split('@')[0]
-        user = repository.create_one(User, mail=mail, password=generate_password_hash(password),
-                                     name=name, tel=tel, is_admin=is_admin)
-        return 0, user.id
+        name = name if name else email.split('@')[0]
+        user = repository.create_one(User, email=email, password=generate_password_hash(password),
+                                     name=name, is_admin=is_admin)
+        # give default role
+        default_role = repository.find_one_by(Role, 'is_default', True)
+        if default_role:
+            user.roles.append(default_role)
+            db.session.commit()
+            return 0, user.id
+        else:
+            return 3, 'No default role found.'
 
 
 def create_admin() -> tuple[int, str]:
@@ -57,33 +64,24 @@ def list_all() -> list:
     return list(filter(lambda x: not x.is_admin, repository.list_all(User)))
 
 
-def update_one(user_id: str, props: dict) -> str:
+def update_one(user_id: str, props: dict):
     user = repository.find_one(User, user_id)
     direct_props = {**props}
     if 'roles' in direct_props:
         del direct_props['roles']
-        roles = Role.query.filter(Role.id.in_(props['roles'])).all()
+        roles = repository.find_many(Role, props['roles'])
         user.roles = roles
         db.session.commit()
     if 'password' in direct_props:
         redis_conn = repository.use_redis()
-        value = redis_conn.get(user.mail)
-        redis_conn.delete(user.mail)
+        value = redis_conn.get(user.email)
+        redis_conn.delete(user.email)
         if direct_props['verification_code'] != value:
-            return 'Invalid verification code.'
+            return 2, 'Invalid verification code.'
         direct_props['password'] = generate_password_hash(direct_props['password'])
-    result = repository.update_one(User, user_id, **direct_props)
-    return '' if result else 'Fail to update.'
+    ret = repository.update_one(User, user_id, **direct_props)
+    return ret
 
 
 def delete_many(user_ids: list[str]) -> None:
     repository.delete_many(User, user_ids)
-
-
-def send_verification_code(recipient: str):
-    redis_conn = repository.use_redis()
-    verification_code = random.randint(100000, 999999)
-    mail_content = f'您好，您的验证码是：{verification_code}，请在5分钟内进行验证。若非本人操作，请无视。'
-    redis_conn.set(name=recipient, value=verification_code, ex=300)
-    return send_mail('秋英邮箱验证码: ', recipients=[recipient], content=mail_content)
-
