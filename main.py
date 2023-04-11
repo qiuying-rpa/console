@@ -41,4 +41,7 @@ app = create_app()
 
 if __name__ == '__main':
     from services.user import create_admin
+    from services.role import create_default
+    
     create_admin()
+    create_default()
