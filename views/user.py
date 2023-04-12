@@ -10,6 +10,7 @@ from apiflask.schemas import EmptySchema
 from models.schemas.common import IdsIn
 from models.schemas.user import UserOut, UserIn, UsersOut
 import services.user as user_service
+from utils.encrypt import rsa_decrypt
 
 
 class User(MethodView):
@@ -25,7 +26,7 @@ class User(MethodView):
     @app.input(UserIn)
     def post(self, user_in: dict):
         code, result = user_service.create_one(user_in['mail'],
-                                               user_in['password'],
+                                               rsa_decrypt(user_in['password']),
                                                user_in.get('name'),
                                                False,
                                                user_in.get('verification_code'))

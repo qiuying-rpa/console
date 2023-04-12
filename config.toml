@@ -1,14 +1,21 @@
 [app]
+default_role_name = '默认角色'
+default_role_desc = '默认角色，无法删除。'
+public_routes = ['/auth/token', '/auth/verification', '/auth/pub-key', '/static']
+
+[auth]
+rsa_public_key = '-----BEGIN RSA PUBLIC KEY-----\nMBgCEQCEQBy21KJaxGdqOipdaOLDAgMBAAE=\n-----END RSA PUBLIC KEY-----\n'
+rsa_private_key = '-----BEGIN RSA PRIVATE KEY-----\nMGICAQACEQCEQBy21KJaxGdqOipdaOLDAgMBAAECEAPP2UQH0vosaj6slGzttsEC\nCQzPmGChodcpYQIIClLBIHKjyqMCCQJYc96lWTtKoQIIBvUjaMUbE1UCCQXOcO6A\nf77NYQ==\n-----END RSA PRIVATE KEY-----\n'
 jwt_secret = '23083B133BD91002551CBE0B80E08133'
 admin_password = '123456'
 access_token_key = 'x-access-token'
 access_expire = 3600
 refresh_expire = 86400
-default_role_name = '默认角色'
-default_role_desc = '默认角色，无法删除。'
+
 [db]
 db_url = 'sqlite:///sqlite.db'
 redis_url = 'redis://localhost:6379/'
+
 [email]
 username = 'noreply@qiuying.tech'
 password = ''

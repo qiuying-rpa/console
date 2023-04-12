@@ -15,7 +15,7 @@ redis_conn_pool: Union[ConnectionPool, None] = None
 def use_db(app=None):
     """Get the __db instance."""
     global __db
-    if app is not None:
+    if app:
         __db = SQLAlchemy(app)
     return __db
 

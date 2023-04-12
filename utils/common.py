@@ -13,7 +13,7 @@ def get_conf():
             conf = toml.load(f)
     except ImportError:
         toml = importlib.import_module('toml')
-        with open('config.toml', 'rt') as f:
+        with open('config.toml', 'rt', encoding='utf-8') as f:
             conf = toml.loads(f.read())
 
     return conf

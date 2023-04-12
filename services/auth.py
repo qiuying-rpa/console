@@ -39,7 +39,7 @@ def refresh(user_id, token):
 
 
 def gen_token_pair(user_id, username):
-    app_conf = get_conf().get('app')
+    app_conf = get_conf().get('auth')
     access_token = gen_token({"id": user_id, "username": username}, app_conf.get('access_expire'))
     refresh_token = gen_token({"id": user_id, "username": username},  app_conf.get('refresh_expire'))
     return access_token, refresh_token

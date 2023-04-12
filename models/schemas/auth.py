@@ -8,7 +8,7 @@ from apiflask.fields import String
 
 
 class TokenIn(Schema):
-    mail = String(required=True)
+    email = String(required=True)
     password = String(required=True)
 
 

@@ -13,7 +13,7 @@ from utils.repository import use_db
 from werkzeug.security import generate_password_hash
 
 db = use_db()
-admin_password = get_conf().get('app').get('admin_password')
+admin_password = get_conf().get('auth').get('admin_password')
 
 
 def create_one(email: str, password: str, name: str = '',

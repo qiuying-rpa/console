@@ -9,7 +9,7 @@ from apiflask.views import MethodView
 from apiflask.schemas import EmptySchema
 
 from models.schemas.common import IdsIn
-from models.schemas.role import RolePermissionsOut, RolesOut, RoleIn, RolePermissionsIn
+from models.schemas.role import RolePermissionsOut, RolesOut, RoleIn
 import services.role as role_service
 
 
@@ -23,7 +23,7 @@ class Role(MethodView):
         else:
             return {'message': f'Role {role_id} not found.', 'code': 1}
 
-    @app.input(RoleIn)
+    @app.input(RoleIn(partial=True))
     def post(self, role_in: dict):
         code, result = role_service.create_role(role_in['name'], role_in['desc'])
         if code == 0:
@@ -31,8 +31,7 @@ class Role(MethodView):
         else:
             return {'message': result, 'code': code}
 
-    @app.input(RoleIn)
-    @app.input(RolePermissionsIn)
+    @app.input(RoleIn(partial=True))
     def patch(self, role_id: str, role_in: dict):
         code, res = role_service.update_role(role_id, role_in)
         if code == 0:
@@ -56,4 +55,4 @@ class Roles(MethodView):
 
 app.add_url_rule('/role/<user_id>', view_func=Role.as_view('role'))
 app.add_url_rule('/role', view_func=Role.as_view('create_role'))
-app.add_url_rule('/roles', view_func=Roles.as_view('users'))
+app.add_url_rule('/roles', view_func=Roles.as_view('roles'))

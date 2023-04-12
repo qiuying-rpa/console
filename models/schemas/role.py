@@ -28,11 +28,6 @@ class RolePermissionsOut(Schema):
 
 
 class RoleIn(Schema):
-    id = UUID()
     name = String()
     desc = String()
-
-
-class RolePermissionsIn(Schema):
-    id = UUID(required=True)
-    permissions = Nested(Permissions, required=True)
+    permissions = Nested(Permissions)

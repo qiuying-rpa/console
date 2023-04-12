@@ -12,5 +12,5 @@ from apiflask.fields import Field, String, DateTime, Integer
 class BaseResponse(Schema):
     code = Integer(dump_default=0)
     data = Field(dump_default=None)
-    message = String(dump_default='Success')
+    message = String(dump_default='Success.')
     time = DateTime(dump_default=datetime.datetime.now)
