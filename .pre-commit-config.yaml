@@ -1,0 +1,11 @@
+repos:
+- repo: https://github.com/ambv/black
+  rev: 23.3.0
+  hooks:
+    - id: black
+- repo: local
+  hooks:
+  - id: rm-auth-keys
+    name: rm-auth-keys
+    entry: python .git_hooks/pre_commit.py
+    language: system

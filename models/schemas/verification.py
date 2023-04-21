@@ -8,4 +8,4 @@ from apiflask.fields import String
 
 
 class VerificationIn(Schema):
-    mail = String()
+    email = String()

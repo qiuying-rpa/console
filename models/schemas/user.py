@@ -10,7 +10,7 @@ from apiflask.fields import String, List, Nested, UUID, Boolean
 class UserOut(Schema):
     id = UUID()
     name = String()
-    mail = String()
+    email = String()
     roles = List(String())
 
 
@@ -20,7 +20,7 @@ class UsersOut(Schema):
 
 class UserIn(Schema):
     name = String()
-    mail = String()
+    email = String()
     password = String()
     tel = String()
     is_admin = Boolean()

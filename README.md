@@ -3,3 +3,20 @@
 ## Road Map
 
 
+## Contribute
+
+### Commit
+
+Before everything, install `pre-commit`:
+
+```shell
+pip install pre-commit
+```
+
+Then install hooks:
+
+```shell
+pre-commit install
+```
+
+Then hooks will take effect.

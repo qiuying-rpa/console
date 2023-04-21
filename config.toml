@@ -1,24 +1,25 @@
 [app]
-default_role_name = '默认角色'
-default_role_desc = '默认角色，无法删除。'
-public_routes = ['/auth/token', '/auth/verification', '/auth/pub-key', '/static']
+default_role_name = "默认角色"
+default_role_desc = "默认角色，无法删除。"
+public_routes = [ "/auth/token", "/auth/verification", "/auth/pub-key", "/static",]
 
 [auth]
-rsa_public_key = '-----BEGIN RSA PUBLIC KEY-----\nMBgCEQCEQBy21KJaxGdqOipdaOLDAgMBAAE=\n-----END RSA PUBLIC KEY-----\n'
-rsa_private_key = '-----BEGIN RSA PRIVATE KEY-----\nMGICAQACEQCEQBy21KJaxGdqOipdaOLDAgMBAAECEAPP2UQH0vosaj6slGzttsEC\nCQzPmGChodcpYQIIClLBIHKjyqMCCQJYc96lWTtKoQIIBvUjaMUbE1UCCQXOcO6A\nf77NYQ==\n-----END RSA PRIVATE KEY-----\n'
-jwt_secret = '23083B133BD91002551CBE0B80E08133'
-admin_password = '123456'
-access_token_key = 'x-access-token'
+rsa_public_key_path = "static/rsa_pub_key.pem"
+rsa_private_key_path = "data/rsa_pri_key.pem"
+jwt_secret = ""
+admin_email = "admin@qiuying.tech"
+admin_password = "123456"
+access_token_key = "x-access-token"
 access_expire = 3600
 refresh_expire = 86400
 
 [db]
-db_url = 'sqlite:///sqlite.db'
-redis_url = 'redis://localhost:6379/'
+db_url = "sqlite:///sqlite.db"
+redis_url = "redis://localhost:6379/"
 
 [email]
-username = 'noreply@qiuying.tech'
-password = ''
-host = 'smtp.exmail.qq.com'
+sender_name = "Qiuying RPA<noreply>"
+sender_address = "noreply@qiuying.tech"
+sender_password = ""
+host = "smtp.exmail.qq.com"
 port = 465
-sender_name = 'Qiuying RPA<noreply>'

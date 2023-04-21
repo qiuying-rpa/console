@@ -4,6 +4,7 @@ venv
 .vscode
 *.db
 static
+data
 templates
 scripts
 instance

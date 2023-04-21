@@ -19,6 +19,4 @@ class Process(db.Model):
     developer_id = db.Column(db.String(36), db.ForeignKey("user.id"))
     demander_id = db.Column(db.String(36), db.ForeignKey("user.id"))
     group_id = db.Column(db.String(36), db.ForeignKey("group.id"))
-    param_configs = db.relationship("paramConfig", backref="process")
-
-
+    param_configs = db.relationship("ParamConfig", backref="process")

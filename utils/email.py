@@ -16,26 +16,30 @@ from typing import Union
 from utils.common import get_conf
 
 
-def send_mail(subject: str, recipients: list[str], content: str,
-              attachments: Union[None, list[tuple[bytes, str]]] = None):
+def send_mail(
+    subject: str,
+    recipients: list[str],
+    content: str,
+    attachments: Union[None, list[tuple[bytes, str]]] = None,
+):
     if attachments is None:
         attachments = []
-    host = get_conf().get('email').get('host')
-    port = get_conf().get('email').get('port')
-    username = get_conf().get('email').get('username')
-    password = get_conf().get('email').get('password')
-    sender = get_conf().get('email').get('sender_name')
+    host = get_conf().get("email").get("host")
+    port = get_conf().get("email").get("port")
+    username = get_conf().get("email").get("sender_address")
+    password = get_conf().get("email").get("sender_password")
+    sender = get_conf().get("email").get("sender_name")
     recipients = recipients
     mime = MIMEMultipart()
 
-    mime['Subject'] = Header(subject, 'utf-8')
-    mime['From'] = formataddr((sender, username))
-    mime['To'] = ';'.join([formataddr(parseaddr(r)) for r in recipients])
-    mime.attach(MIMEText(content, 'plain', 'utf-8'))
+    mime["Subject"] = Header(subject, "utf-8")
+    mime["From"] = formataddr((sender, username))
+    mime["To"] = ";".join([formataddr(parseaddr(r)) for r in recipients])
+    mime.attach(MIMEText(content, "plain", "utf-8"))
 
     for file_bytes, file_name in attachments:
         attachment = MIMEApplication(file_bytes)
-        attachment.add_header('Content-Disposition', 'attachment', filename=file_name)
+        attachment.add_header("Content-Disposition", "attachment", filename=file_name)
         mime.attach(attachment)
 
     try:

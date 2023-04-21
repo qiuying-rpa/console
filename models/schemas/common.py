@@ -10,3 +10,7 @@ from apiflask.fields import String, List
 
 class IdsIn(Schema):
     ids = List(String())
+
+
+class NoneDataOut(Schema):
+    pass
