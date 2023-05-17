@@ -42,55 +42,50 @@ def update_one(model, one_id, **props):
 
 def find_one(model, one_id):
     """Find one"""
-    record = __db.session.execute(__db.select(model).filter_by(id=one_id)).first()
-    return record[0] if record else None
+    return (
+        __db.session.execute(__db.select(model).filter_by(id=one_id)).scalars().first()
+    )
 
 
 def find_one_by(model, prop_name, prop_value):
     """Find one by a certain prop"""
-    record = __db.session.execute(
-        __db.select(model).filter_by(**{prop_name: prop_value})
-    ).first()
-    return record[0] if record else None
+    return (
+        __db.session.execute(__db.select(model).filter_by(**{prop_name: prop_value}))
+        .scalars()
+        .first()
+    )
 
 
 def find_many(model, many_ids):
     """Find many"""
-    return list(
-        map(
-            lambda x: x[0],
-            __db.session.execute(
-                __db.select(model).filter(model.id.in_(many_ids))
-            ).all(),
-        )
-    )
+    return __db.session.execute(
+        __db.select(model).filter(model.id.in_(many_ids))
+    ).scalars()
 
 
 def find_many_by(model, prop_name, prop_value):
     """Find many by a certain prop"""
-    return list(
-        map(
-            lambda x: x[0],
-            __db.session.execute(
-                __db.select(model).filter_by(**{prop_name: prop_value})
-            ).all(),
-        )
-    )
+    return __db.session.execute(
+        __db.select(model).filter_by(**{prop_name: prop_value})
+    ).scalars()
 
 
 def find_other_with_same(model, the_id, prop_name, prop_value):
     """Find the other one with the same value of a certain prop"""
-    record = __db.session.execute(
-        __db.select(model)
-        .filter_by(**{prop_name: prop_value})
-        .filter(model.id.isnot(the_id))
-    ).first()
-    return record[0] if record else None
+    return (
+        __db.session.execute(
+            __db.select(model)
+            .filter_by(**{prop_name: prop_value})
+            .filter(model.id.isnot(the_id))
+        )
+        .scalars()
+        .first()
+    )
 
 
 def list_all(model):
     """List all"""
-    return list(map(lambda x: x[0], __db.session.execute(__db.select(model)).all()))
+    return __db.session.execute(__db.select(model)).scalars()
 
 
 def delete_one(model, one_id):

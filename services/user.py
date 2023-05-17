@@ -63,9 +63,12 @@ def delete_admin():
         repository.delete_one(User, admin.id)
 
 
-def find_user(user_id: str) -> User:
+def find_user(user_id: str):
     user = repository.find_one(User, user_id)
-    return user
+    if user:
+        return 0, user
+    else:
+        return 1, f"User {user_id} not found."
 
 
 def list_all() -> list:

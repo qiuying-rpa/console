@@ -13,14 +13,10 @@ class Permissions(Schema):
     menus = List(String())
 
 
-class Role(Schema):
+class RoleOut(Schema):
     id = UUID()
     name = String()
     desc = String()
-
-
-class RolesOut(Schema):
-    roles = List(Nested(Role))
 
 
 class RolePermissionsOut(Schema):

@@ -11,13 +11,16 @@ from utils.common import get_conf
 
 def find_role(role_id):
     role = repository.find_one(Role, role_id)
-    return role
+    if role:
+        return 0, role
+    else:
+        return 1, f"Role {role_id} not found."
 
 
 def create_role(name: str, desc: str):
-    role_exists = repository.find_one_by(Role, 'name', name)
+    role_exists = repository.find_one_by(Role, "name", name)
     if role_exists:
-        return 1, 'Role with same name exists.'
+        return 1, "Role with same name exists."
     else:
         role = repository.create_one(Role, name=name, desc=desc)
         return 0, role.id
@@ -32,13 +35,17 @@ def list_all():
 
 
 def create_default():
-    role_exists = repository.find_one_by(Role, 'is_default', True)
+    role_exists = repository.find_one_by(Role, "is_default", True)
     if role_exists:
-        return 1, 'Default role already exists.'
+        return 1, "Default role already exists."
     else:
-        conf = get_conf().get('app')
+        conf = get_conf().get("app")
         role = repository.create_one(
-            Role, name=conf.get('default_role_name'), desc=conf.get('default_role_desc'), is_default=True)
+            Role,
+            name=conf.get("default_role_name"),
+            desc=conf.get("default_role_desc"),
+            is_default=True,
+        )
         return 0, role.id
 
 

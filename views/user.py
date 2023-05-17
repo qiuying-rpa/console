@@ -8,23 +8,21 @@ from apiflask.views import MethodView
 from apiflask.schemas import EmptySchema
 
 from models.schemas.common import IdsIn
-from models.schemas.user import UserOut, UserIn, UsersOut
+from models.schemas.user import UserOut, UserIn
 import services.user as user_service
 from utils.encrypt import rsa_decrypt
+from utils.response import make_resp, make_resp_concise
 
 
 class User(MethodView):
     @app.output(UserOut)
     def get(self, user_id: str):
-        user = user_service.find_user(user_id)
-        if user:
-            return {"data": user}
-        else:
-            return {"message": f"User {user_id} not found.", "code": 1}
+        code, res = user_service.find_user(user_id)
+        return make_resp_concise(code, res)
 
     @app.input(UserIn)
     def post(self, user_in: dict):
-        code, result = user_service.create_one(
+        code, res = user_service.create_one(
             user_in["email"],
             rsa_decrypt(user_in["password"]),
             user_in.get("name"),
@@ -32,24 +30,21 @@ class User(MethodView):
             user_in.get("verification_code"),
         )
         if code == 0:
-            return {"data": result, "message": "Created."}, 201
+            return make_resp(data=res, message="Created."), 201
         else:
-            return {"message": result, "code": code}
+            return make_resp_concise(code, res)
 
     @app.input(UserIn)
     def patch(self, user_id: str, user_in: dict):
         code, res = user_service.update_one(user_id, user_in)
-        if code != 0:
-            return {"message": res, "code": code}
-        else:
-            return {"message": "Updated."}
+        return make_resp_concise(code, res)
 
 
 class Users(MethodView):
-    @app.output(UsersOut)
+    @app.output(UserOut(many=True))
     def get(self):
         users = user_service.list_all()
-        return {"data": {"users": users}}
+        return make_resp(data=users)
 
     @app.input(IdsIn)
     @app.output(EmptySchema)

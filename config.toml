@@ -14,7 +14,7 @@ access_expire = 3600
 refresh_expire = 86400
 
 [db]
-db_url = "postgresql://root:123456@pg:5432/qiuying"
+db_url = "sqlite:///sqlite.db"
 redis_url = "redis://localhost:6379/"
 
 [email]

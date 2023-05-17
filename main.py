@@ -37,9 +37,9 @@ with app.app_context():
 
     db.create_all()
 
-    from utils.permissions import bind_auth_checker
-
-    bind_auth_checker(app)
+    # from utils.permissions import bind_auth_checker
+    #
+    # bind_auth_checker(app)
 
     if __name__ == "__main__":
         from services.user import create_admin
