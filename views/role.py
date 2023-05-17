@@ -8,8 +8,8 @@ from flask import current_app as app
 from apiflask.views import MethodView
 from apiflask.schemas import EmptySchema
 
-from models.schemas.common import IdsIn
-from models.schemas.role import RolePermissionsOut, RoleOut, RoleIn
+from schemas.common import IdsIn
+from schemas.role import RolePermissionsOut, RoleOut, RoleIn
 import services.role as role_service
 from utils.response import make_resp, make_resp_concise
 

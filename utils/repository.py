@@ -3,11 +3,11 @@
 By Allen Tao
 Created at 2023/02/10 18:31
 """
+import os
 from typing import Union
 from redis import Redis, ConnectionPool
 from flask_sqlalchemy import SQLAlchemy
 
-from utils.common import get_conf
 
 __db: Union[SQLAlchemy, None] = None
 __redis_conn_pool: Union[ConnectionPool, None] = None
@@ -104,7 +104,7 @@ def init_redis_conn_pool():
     """Init redis connection pool"""
     global __redis_conn_pool
     __redis_conn_pool = ConnectionPool.from_url(
-        url=get_conf("db.redis_url"), decode_responses=True
+        url=os.getenv("REDIS_URL"), decode_responses=True
     )
 
 

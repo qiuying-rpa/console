@@ -71,6 +71,11 @@ def find_user(user_id: str):
         return 1, f"User {user_id} not found."
 
 
+def find_admin() -> User:
+    admin = repository.find_one_by(User, "is_admin", True)
+    return admin
+
+
 def list_all() -> list:
     return list(filter(lambda x: not x.is_admin, repository.list_all(User)))
 

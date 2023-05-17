@@ -3,7 +3,7 @@
 ## Road Map
 
 
-## Contribution
+## Contributing
 
 ### Commit
 

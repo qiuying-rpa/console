@@ -7,8 +7,8 @@ from flask import current_app as app
 from apiflask.views import MethodView
 from apiflask.schemas import EmptySchema
 
-from models.schemas.common import IdsIn
-from models.schemas.user import UserOut, UserIn
+from schemas.common import IdsIn
+from schemas.user import UserIn, UserOut
 import services.user as user_service
 from utils.encrypt import rsa_decrypt
 from utils.response import make_resp, make_resp_concise
@@ -52,6 +52,6 @@ class Users(MethodView):
         user_service.delete_many(users_in.get("ids"))
 
 
-app.add_url_rule("/user/<user_id>", view_func=User.as_view("user"))
-app.add_url_rule("/user", view_func=User.as_view("createUser"))
-app.add_url_rule("/users", view_func=Users.as_view("users"))
+app.add_url_rule("/sys/user/<user_id>", view_func=User.as_view("user"))
+app.add_url_rule("/sys/user", view_func=User.as_view("createUser"))
+app.add_url_rule("/sys/users", view_func=Users.as_view("users"))

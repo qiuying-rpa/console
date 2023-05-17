@@ -20,31 +20,26 @@ class Token(MethodView):
     def post(self, token_in):
         code, res = auth_service.login(token_in["email"], token_in["password"])
         if code:
-            return make_resp_concise(code, res)
+            return {"message": res, "code": code, "data": None}
         else:
-            return (
-                make_resp(data={"access_token": res[0], "refresh_token": res[1]}),
-                201,
-            )
+            return {"data": {"access_token": res[0], "refresh_token": res[1]}}, 201
 
     @app.input(RefreshTokenIn)
     @app.output(TokenOut(partial=True))
     def put(self, refresh_token_in):
         code, res = auth_service.refresh(refresh_token_in["refresh_token"])
         if code:
-            return make_resp_concise(code, res)
+            return {"message": res, "code": code, "data": None}
         else:
-            return (
-                make_resp(data={"access_token": res[0], "refresh_token": res[1]}),
-                200,
-            )
+            return {"data": {"access_token": res[0], "refresh_token": res[1]}}, 200
 
 
 class Verification(MethodView):
     @app.input(VerificationIn)
+    @app.output(NoneDataOut)
     def post(self, verification_in):
         auth_service.send_verification_code(verification_in["email"])
-        return make_resp(message="Done."), 201
+        return {"message": "done."}, 201
 
 
 class Permissions(MethodView):
@@ -65,7 +60,7 @@ class Permissions(MethodView):
                 user.roles,
                 data,
             )
-        return make_resp(data=data)
+        return {"data": data}
 
 
 app.add_url_rule("/auth/token", view_func=Token.as_view("token"))

@@ -6,6 +6,9 @@ Created at 2023/3/24 10:48
 import re
 from functools import wraps
 from flask import request, g
+
+import services.user
+from schemas.user import UserOut
 from services.auth import get_all_permission
 from utils.common import get_conf
 from utils.encrypt import verify_token
@@ -53,6 +56,23 @@ def bind_auth_checker(app):
             else:
                 app.logger.info("Unauthenticated")
                 return {"message": "Unauthenticated"}, 401
+
+    def after_checker(response):
+        app.logger.info("[X].." + request.path)
+        return response
+
+    app.before_request(before_checker)
+    app.after_request(after_checker)
+
+
+def bind_dev_auth_checker(app):
+    def before_checker():
+        app.logger.info("[E] -> " + request.path)
+        admin = services.user.find_admin()
+        admin_out = UserOut(only={"id", "name"}).dump(admin)
+        app.logger.info("current_user:")
+        app.logger.info(admin_out)
+        g.current_user = admin_out
 
     def after_checker(response):
         app.logger.info("[X].." + request.path)
