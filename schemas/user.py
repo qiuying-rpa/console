@@ -4,7 +4,9 @@ By Ziqiu Li
 Created at 2023/3/24 14:18
 """
 from apiflask import Schema
-from apiflask.fields import String, List, Nested, UUID, Boolean
+from apiflask.fields import String, List, Nested, UUID, Enum
+
+from models.enums import ActionEnum
 
 
 class UserOut(Schema):
@@ -14,10 +16,21 @@ class UserOut(Schema):
     roles = Nested("RoleOut", many=True)
 
 
-class UserIn(Schema):
-    name = String()
-    email = String()
+class UserAdminIn(Schema):
+    name = String(required=True)
+    email = String(required=True)
     password = String()
-    is_admin = Boolean()
-    verification_code = String()
     roles = List(String())
+
+
+class UserSelfIn(Schema):
+    name = String(required=True)
+    email = String(required=True)
+    password = String()
+    verification_code = String(required=True)
+
+
+class UserRolesIn(Schema):
+    ids = List(String(), required=True)
+    roles = List(String(), required=True)
+    action = Enum(enum=ActionEnum, required=True)

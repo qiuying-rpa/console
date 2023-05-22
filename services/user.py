@@ -3,6 +3,7 @@
 By Ziqiu Li
 Created at 2023/3/24 10:48
 """
+from models.enums import ActionEnum
 from models.user import User
 from models.role import Role
 from utils import repository
@@ -13,31 +14,32 @@ from werkzeug.security import generate_password_hash
 db = use_db()
 
 
-def create_one(
+def create_user_by_self(
     email: str,
     password: str,
-    name: str = "",
-    is_admin: bool = False,
-    verification_code: str = "",
+    name: str,
+    verification_code: str,
 ) -> tuple[int, str]:
-    user = User.query.filter_by(email=email).first()
+    user = repository.find_one_by(User, "email", email)
     if user:
         return 1, "Email already used."
     else:
-        if not is_admin:
-            redis_conn = repository.use_redis()
-            value = redis_conn.get(email)
+        redis_conn = repository.use_redis()
+        value = redis_conn.get(email)
+
+        if verification_code != value:
+            return 2, "Invalid verification code."
+        else:
             redis_conn.delete(email)
-            if verification_code != value:
-                return 2, "Invalid verification code."
-        name = name if name else email.split("@")[0]
+
         user = repository.create_one(
             User,
             email=email,
             password=generate_password_hash(password),
             name=name,
-            is_admin=is_admin,
+            is_admin=False,
         )
+
         # give default role
         default_role = repository.find_one_by(Role, "is_default", True)
         if default_role:
@@ -48,13 +50,36 @@ def create_one(
             return 3, "No default role found."
 
 
+def create_user_by_admin(email: str, password: str, name: str, roles=None):
+    if roles is None:
+        roles = []
+    user_exists = repository.find_one_by(User, "email", email)
+    if user_exists:
+        return 1, "Email already used."
+    else:
+        user = repository.create_one(User, email=email, password=password, name=name)
+
+        roles = repository.find_many(Role, roles)
+        if len(roles) > 0:
+            user.roles = roles
+            db.session.commit()
+
+        return 0, user.id
+
+
 def create_admin() -> tuple[int, str]:
     admin = User.query.filter(User.is_admin.is_(True)).first()
     if not admin:
         conf = get_conf().get("auth")
-        create_one(conf.get("admin_email"), conf.get("admin_password"), is_admin=True)
+        return 0, repository.create_one(
+            User,
+            email=conf.get("admin_email"),
+            password=generate_password_hash(conf.get("admin_password")),
+            name="admin",
+            is_admin=True,
+        )
     else:
-        return 0, admin.id
+        return 1, admin.id
 
 
 def delete_admin():
@@ -77,7 +102,7 @@ def find_admin() -> User:
 
 
 def list_all() -> list:
-    return list(filter(lambda x: not x.is_admin, repository.list_all(User)))
+    return repository.list_all(User, "is_admin", True)
 
 
 def update_one(user_id: str, props: dict):
@@ -101,3 +126,21 @@ def update_one(user_id: str, props: dict):
 
 def delete_many(user_ids: list[str]) -> None:
     repository.delete_many(User, user_ids)
+
+
+def update_roles(user_ids: list[str], roles: list[str], action: ActionEnum):
+    users = repository.find_many(User, user_ids)
+    if action == ActionEnum.ADD:
+        for user in users:
+            roles_to_add = list(
+                filter(lambda x: all(map(lambda _x: _x.id != x, user.roles)), roles)
+            )
+            print(roles_to_add)
+            [user.roles.append(r) for r in repository.find_many(Role, roles_to_add)]
+    else:
+        for user in users:
+            user.roles = list(
+                filter(lambda x: all(map(lambda _x: _x != x.id, roles)), user.roles)
+            )
+    db.session.commit()
+    return 0, ""

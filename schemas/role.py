@@ -8,7 +8,7 @@ from apiflask import Schema
 from apiflask.fields import String, List, Nested, UUID
 
 
-class Permissions(Schema):
+class Permission(Schema):
     actions = List(String())
     menus = List(String())
 
@@ -19,11 +19,14 @@ class RoleOut(Schema):
     desc = String()
 
 
-class RolePermissionsOut(Schema):
-    permissions = Nested(Permissions)
+class RoleWithPermissionsOut(Schema):
+    id = UUID()
+    name = String()
+    desc = String()
+    permissions = Nested(Permission())
 
 
 class RoleIn(Schema):
     name = String()
     desc = String()
-    permissions = Nested(Permissions)
+    permissions = Nested(Permission())

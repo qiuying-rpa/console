@@ -8,48 +8,54 @@ from apiflask.views import MethodView
 from apiflask.schemas import EmptySchema
 
 from schemas.common import IdsIn
-from schemas.user import UserIn, UserOut
+from schemas.user import UserAdminIn, UserOut, UserRolesIn
 import services.user as user_service
 from utils.encrypt import rsa_decrypt
-from utils.response import make_resp, make_resp_concise
+from utils.response import make_resp
 
 
 class User(MethodView):
     @app.output(UserOut)
     def get(self, user_id: str):
         code, res = user_service.find_user(user_id)
-        return make_resp_concise(code, res)
+        return make_resp(code, res)
 
-    @app.input(UserIn)
+    @app.input(UserAdminIn)
     def post(self, user_in: dict):
-        code, res = user_service.create_one(
+        code, res = user_service.create_user_by_admin(
             user_in["email"],
             rsa_decrypt(user_in["password"]),
             user_in.get("name"),
-            False,
-            user_in.get("verification_code"),
+            user_in.get("roles"),
         )
         if code == 0:
-            return make_resp(data=res, message="Created."), 201
+            return make_resp(code, res, "Created"), 201
         else:
-            return make_resp_concise(code, res)
+            return make_resp(code, res)
 
-    @app.input(UserIn)
-    def patch(self, user_id: str, user_in: dict):
+    @app.input(UserAdminIn)
+    def put(self, user_id: str, user_in: dict):
         code, res = user_service.update_one(user_id, user_in)
-        return make_resp_concise(code, res)
+        return make_resp(code, res, "Updated")
 
 
 class Users(MethodView):
     @app.output(UserOut(many=True))
     def get(self):
         users = user_service.list_all()
-        return make_resp(data=users)
+        return make_resp(res=users)
 
     @app.input(IdsIn)
     @app.output(EmptySchema)
     def delete(self, users_in):
         user_service.delete_many(users_in.get("ids"))
+
+    @app.input(UserRolesIn)
+    def patch(self, user_in: dict):
+        code, res = user_service.update_roles(
+            user_in["ids"], user_in["roles"], user_in["action"]
+        )
+        return make_resp(code, res, "Updated")
 
 
 app.add_url_rule("/sys/user/<user_id>", view_func=User.as_view("user"))

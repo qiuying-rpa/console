@@ -9,9 +9,10 @@ from flask import request, g
 
 import services.user
 from schemas.user import UserOut
-from services.auth import get_all_permission
+from services.auth import get_all_permissions
 from utils.common import get_conf
 from utils.encrypt import verify_token
+from utils.response import make_resp
 
 
 def bind_auth_checker(app):
@@ -88,7 +89,7 @@ def require_permission(permission):
         def permission_decorator(func):
             @wraps(func)
             def wrapped_function(*args, **kwargs):
-                permissions = get_all_permission()
+                permissions = get_all_permissions()
                 if permissions == "*" or (
                     permission in permissions
                     if type(permission) == str
@@ -96,7 +97,7 @@ def require_permission(permission):
                 ):
                     return func(*args, **kwargs)
                 else:
-                    return {"message": "Permission denied.", "data": None}, 403
+                    return make_resp(110, "Permission denied."), 403
 
             return wrapped_function
 

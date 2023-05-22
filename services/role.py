@@ -4,6 +4,8 @@ Role CRUD
 By Allen Tao
 Created at 2023/4/10 11:39
 """
+import json
+
 from models.role import Role
 from utils import repository
 from utils.common import get_conf
@@ -27,7 +29,11 @@ def create_role(name: str, desc: str):
 
 
 def update_role(role_id, role_props):
-    return repository.update_one(Role, role_id, **role_props)
+    if new_name := role_props.get("name"):
+        exists_role = repository.find_other_with_same(Role, role_id, "name", new_name)
+        if exists_role:
+            return 1, "Role with same name already exists."
+    return 0, repository.update_one(Role, role_id, **role_props)
 
 
 def list_all():
@@ -36,17 +42,14 @@ def list_all():
 
 def create_default():
     role_exists = repository.find_one_by(Role, "is_default", True)
-    if role_exists:
-        return 1, "Default role already exists."
-    else:
+    if not role_exists:
         conf = get_conf().get("app")
-        role = repository.create_one(
+        repository.create_one(
             Role,
             name=conf.get("default_role_name"),
             desc=conf.get("default_role_desc"),
             is_default=True,
         )
-        return 0, role.id
 
 
 def delete_roles(ids: list[str]):

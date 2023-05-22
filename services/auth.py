@@ -52,7 +52,7 @@ def gen_token_pair(user_id, username):
     return access_token, refresh_token
 
 
-def get_all_permission():
+def get_all_permissions():
     if g.get("current_user"):
         user = repository.find_one(User, g.current_user["id"])
         if user:

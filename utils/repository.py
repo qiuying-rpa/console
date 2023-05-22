@@ -42,50 +42,43 @@ def update_one(model, one_id, **props):
 
 def find_one(model, one_id):
     """Find one"""
-    return (
-        __db.session.execute(__db.select(model).filter_by(id=one_id)).scalars().first()
-    )
+    return __db.session.get(model, ident=one_id)
 
 
 def find_one_by(model, prop_name, prop_value):
     """Find one by a certain prop"""
-    return (
-        __db.session.execute(__db.select(model).filter_by(**{prop_name: prop_value}))
-        .scalars()
-        .first()
-    )
+    return __db.session.scalar(__db.select(model).filter_by(**{prop_name: prop_value}))
 
 
 def find_many(model, many_ids):
     """Find many"""
-    return __db.session.execute(
-        __db.select(model).filter(model.id.in_(many_ids))
-    ).scalars()
+    return __db.session.scalars(__db.select(model).filter(model.id.in_(many_ids))).all()
 
 
 def find_many_by(model, prop_name, prop_value):
     """Find many by a certain prop"""
-    return __db.session.execute(
+    return __db.session.scalars(
         __db.select(model).filter_by(**{prop_name: prop_value})
-    ).scalars()
+    ).all()
 
 
 def find_other_with_same(model, the_id, prop_name, prop_value):
     """Find the other one with the same value of a certain prop"""
-    return (
-        __db.session.execute(
-            __db.select(model)
-            .filter_by(**{prop_name: prop_value})
-            .filter(model.id.isnot(the_id))
-        )
-        .scalars()
-        .first()
+    return __db.session.scalar(
+        __db.select(model)
+        .filter_by(**{prop_name: prop_value})
+        .filter(model.id.isnot(the_id))
     )
 
 
-def list_all(model):
+def list_all(model, exclude_prop=None, exclude_value=None):
     """List all"""
-    return __db.session.execute(__db.select(model)).scalars()
+    if exclude_prop is not None:
+        return __db.session.scalars(
+            __db.select(model).filter(getattr(model, exclude_prop) != exclude_value)
+        ).all()
+    else:
+        return __db.session.scalars(__db.select(model)).all()
 
 
 def delete_one(model, one_id):

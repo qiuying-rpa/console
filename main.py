@@ -49,13 +49,15 @@ with app.app_context():
         app.logger.handlers = gunicorn_logger.handlers
         app.logger.setLevel(gunicorn_logger.level)
     else:
-        from services.user import create_admin
-        from services.role import create_default
-        from services.auth import create_auth_keys
         from utils.permissions import bind_dev_auth_checker
 
-        create_auth_keys()
-        create_admin()
-        create_default()
-
         bind_dev_auth_checker(app)
+
+        if __name__ == "__main__":
+            from services.user import create_admin
+            from services.role import create_default
+            from services.auth import create_auth_keys
+
+            create_auth_keys()
+            create_admin()
+            create_default()

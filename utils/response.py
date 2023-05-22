@@ -6,20 +6,18 @@ Created at 2023/5/16 21:08
 from datetime import datetime
 
 
-def make_resp(code=0, data=None, message=""):
-    return {"code": code, "data": data, "message": message, "time": datetime.now()}
-
-
-def make_resp_concise(code=0, res=None, message=""):
+def make_resp(code=0, res=None, msg=""):
     """
+    Build a generic response structure.
 
-    :param code:
-    :param res:
-    :param message:
-    :return:
+    :param code: Business status code, and default is 0.
+    :param res: To success response, this param represents data, otherwise it represents failure message.
+    :param msg: Message. Only works if res is falsy when failing.
+    :return: A generic response structure.
     """
+    time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return (
-        make_resp(code=code, data=res, message=message or "Success.")
+        {"code": code, "data": res, "message": msg or "Success", "time": time}
         if code == 0
-        else make_resp(code=code, message=res or message or "Fail.")
+        else {"code": code, "data": None, "message": res or msg or "Fail", "time": time}
     )
