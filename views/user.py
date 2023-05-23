@@ -7,56 +7,57 @@ from flask import current_app as app
 from apiflask.views import MethodView
 from apiflask.schemas import EmptySchema
 
-from models.schemas.common import IdsIn
-from models.schemas.user import UserOut, UserIn, UsersOut
+from schemas.common import IdsIn
+from schemas.user import UserAdminIn, UserOut, UserRolesIn
 import services.user as user_service
 from utils.encrypt import rsa_decrypt
+from utils.response import make_resp
 
 
 class User(MethodView):
     @app.output(UserOut)
     def get(self, user_id: str):
-        user = user_service.find_user(user_id)
-        if user:
-            return {"data": user}
-        else:
-            return {"message": f"User {user_id} not found.", "code": 1}
+        code, res = user_service.find_user(user_id)
+        return make_resp(code, res)
 
-    @app.input(UserIn)
+    @app.input(UserAdminIn)
     def post(self, user_in: dict):
-        code, result = user_service.create_one(
+        code, res = user_service.create_user_by_admin(
             user_in["email"],
             rsa_decrypt(user_in["password"]),
             user_in.get("name"),
-            False,
-            user_in.get("verification_code"),
+            user_in.get("roles"),
         )
         if code == 0:
-            return {"data": result, "message": "Created."}, 201
+            return make_resp(code, res, "Created"), 201
         else:
-            return {"message": result, "code": code}
+            return make_resp(code, res)
 
-    @app.input(UserIn)
-    def patch(self, user_id: str, user_in: dict):
+    @app.input(UserAdminIn)
+    def put(self, user_id: str, user_in: dict):
         code, res = user_service.update_one(user_id, user_in)
-        if code != 0:
-            return {"message": res, "code": code}
-        else:
-            return {"message": "Updated."}
+        return make_resp(code, res, "Updated")
 
 
 class Users(MethodView):
-    @app.output(UsersOut)
+    @app.output(UserOut(many=True))
     def get(self):
         users = user_service.list_all()
-        return {"data": {"users": users}}
+        return make_resp(res=users)
 
     @app.input(IdsIn)
     @app.output(EmptySchema)
     def delete(self, users_in):
         user_service.delete_many(users_in.get("ids"))
 
+    @app.input(UserRolesIn)
+    def patch(self, user_in: dict):
+        code, res = user_service.update_roles(
+            user_in["ids"], user_in["roles"], user_in["action"]
+        )
+        return make_resp(code, res, "Updated")
 
-app.add_url_rule("/user/<user_id>", view_func=User.as_view("user"))
-app.add_url_rule("/user", view_func=User.as_view("createUser"))
-app.add_url_rule("/users", view_func=Users.as_view("users"))
+
+app.add_url_rule("/sys/user/<user_id>", view_func=User.as_view("user"))
+app.add_url_rule("/sys/user", view_func=User.as_view("createUser"))
+app.add_url_rule("/sys/users", view_func=Users.as_view("users"))

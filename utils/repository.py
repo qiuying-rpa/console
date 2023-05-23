@@ -3,11 +3,11 @@
 By Allen Tao
 Created at 2023/02/10 18:31
 """
+import os
 from typing import Union
 from redis import Redis, ConnectionPool
 from flask_sqlalchemy import SQLAlchemy
 
-from utils.common import get_conf
 
 __db: Union[SQLAlchemy, None] = None
 __redis_conn_pool: Union[ConnectionPool, None] = None
@@ -37,60 +37,48 @@ def update_one(model, one_id, **props):
             setattr(one, key, value)
         __db.session.commit()
         return 0, ""
-    return 1, "Target not exists."
+    return 1, "Target not exist."
 
 
 def find_one(model, one_id):
     """Find one"""
-    record = __db.session.execute(__db.select(model).filter_by(id=one_id)).first()
-    return record[0] if record else None
+    return __db.session.get(model, ident=one_id)
 
 
 def find_one_by(model, prop_name, prop_value):
     """Find one by a certain prop"""
-    record = __db.session.execute(
-        __db.select(model).filter_by(**{prop_name: prop_value})
-    ).first()
-    return record[0] if record else None
+    return __db.session.scalar(__db.select(model).filter_by(**{prop_name: prop_value}))
 
 
 def find_many(model, many_ids):
     """Find many"""
-    return list(
-        map(
-            lambda x: x[0],
-            __db.session.execute(
-                __db.select(model).filter(model.id.in_(many_ids))
-            ).all(),
-        )
-    )
+    return __db.session.scalars(__db.select(model).filter(model.id.in_(many_ids))).all()
 
 
 def find_many_by(model, prop_name, prop_value):
     """Find many by a certain prop"""
-    return list(
-        map(
-            lambda x: x[0],
-            __db.session.execute(
-                __db.select(model).filter_by(**{prop_name: prop_value})
-            ).all(),
-        )
-    )
+    return __db.session.scalars(
+        __db.select(model).filter_by(**{prop_name: prop_value})
+    ).all()
 
 
 def find_other_with_same(model, the_id, prop_name, prop_value):
     """Find the other one with the same value of a certain prop"""
-    record = __db.session.execute(
+    return __db.session.scalar(
         __db.select(model)
         .filter_by(**{prop_name: prop_value})
         .filter(model.id.isnot(the_id))
-    ).first()
-    return record[0] if record else None
+    )
 
 
-def list_all(model):
+def list_all(model, exclude_prop=None, exclude_value=None):
     """List all"""
-    return list(map(lambda x: x[0], __db.session.execute(__db.select(model)).all()))
+    if exclude_prop is not None:
+        return __db.session.scalars(
+            __db.select(model).filter(getattr(model, exclude_prop) != exclude_value)
+        ).all()
+    else:
+        return __db.session.scalars(__db.select(model)).all()
 
 
 def delete_one(model, one_id):
@@ -109,7 +97,7 @@ def init_redis_conn_pool():
     """Init redis connection pool"""
     global __redis_conn_pool
     __redis_conn_pool = ConnectionPool.from_url(
-        url=get_conf("db.redis_url"), decode_responses=True
+        url=os.getenv("REDIS_URL"), decode_responses=True
     )
 
 

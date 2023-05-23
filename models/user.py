@@ -16,9 +16,8 @@ class User(db.Model):
     name = db.Column(db.String(128), nullable=False)
     email = db.Column(db.String(64), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    is_admin = db.Column(db.Boolean)
+    is_admin = db.Column(db.Boolean, default=False)
     vouchers = db.relationship("Voucher", backref="user")
     param_configs = db.relationship("ParamConfig", backref="user")
     assets = db.relationship("Asset", backref="user")
-    roles = db.relationship('Role', backref='users', secondary=user_role)
-
+    roles = db.relationship("Role", backref="users", secondary=user_role)

@@ -13,10 +13,6 @@ access_token_key = "x-access-token"
 access_expire = 3600
 refresh_expire = 86400
 
-[db]
-db_url = "postgresql://root:123456@pg:5432/qiuying"
-redis_url = "redis://localhost:6379/"
-
 [email]
 sender_name = "Qiuying RPA<noreply>"
 sender_address = "noreply@qiuying.tech"

@@ -6,9 +6,13 @@ Created at 2023/3/24 10:48
 import re
 from functools import wraps
 from flask import request, g
-from services.auth import get_all_permission
+
+import services.user
+from schemas.user import UserOut
+from services.auth import get_all_permissions
 from utils.common import get_conf
 from utils.encrypt import verify_token
+from utils.response import make_resp
 
 
 def bind_auth_checker(app):
@@ -62,13 +66,30 @@ def bind_auth_checker(app):
     app.after_request(after_checker)
 
 
+def bind_dev_auth_checker(app):
+    def before_checker():
+        app.logger.info("[E] -> " + request.path)
+        admin = services.user.find_admin()
+        admin_out = UserOut(only={"id", "name"}).dump(admin)
+        app.logger.info("current_user:")
+        app.logger.info(admin_out)
+        g.current_user = admin_out
+
+    def after_checker(response):
+        app.logger.info("[X].." + request.path)
+        return response
+
+    app.before_request(before_checker)
+    app.after_request(after_checker)
+
+
 def require_permission(permission):
     if type(permission) in [str, list]:
 
         def permission_decorator(func):
             @wraps(func)
             def wrapped_function(*args, **kwargs):
-                permissions = get_all_permission()
+                permissions = get_all_permissions()
                 if permissions == "*" or (
                     permission in permissions
                     if type(permission) == str
@@ -76,7 +97,7 @@ def require_permission(permission):
                 ):
                     return func(*args, **kwargs)
                 else:
-                    return {"message": "Permission denied.", "data": None}, 403
+                    return make_resp(110, "Permission denied."), 403
 
             return wrapped_function
 
