@@ -29,11 +29,20 @@ def create_role(name: str, desc: str):
 
 
 def update_role(role_id, role_props):
-    if new_name := role_props.get("name"):
-        exists_role = repository.find_other_with_same(Role, role_id, "name", new_name)
-        if exists_role:
-            return 1, "Role with same name already exists."
-    return 0, repository.update_one(Role, role_id, **role_props)
+    role = repository.find_one(Role, role_id)
+    if role:
+        if role.is_default:
+            return 2, "Default role cannot be modified :/"
+        else:
+            if new_name := role_props.get("name"):
+                exists_role = repository.find_other_with_same(
+                    Role, role_id, "name", new_name
+                )
+                if exists_role:
+                    return 3, "Role with same name already exists."
+            return repository.update_one(Role, role_id, **role_props)
+    else:
+        return 4, "Target role not found."
 
 
 def list_all():
@@ -53,4 +62,5 @@ def create_default():
 
 
 def delete_roles(ids: list[str]):
-    repository.delete_many(Role, ids)
+    default_role = repository.find_one_by(Role, "is_default", True)
+    repository.delete_many(Role, list(filter(lambda x: x != default_role.id, ids)))

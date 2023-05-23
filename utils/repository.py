@@ -37,7 +37,7 @@ def update_one(model, one_id, **props):
             setattr(one, key, value)
         __db.session.commit()
         return 0, ""
-    return 1, "Target not exists."
+    return 1, "Target not exist."
 
 
 def find_one(model, one_id):

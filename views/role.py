@@ -9,7 +9,7 @@ from apiflask.views import MethodView
 from apiflask.schemas import EmptySchema
 
 from schemas.common import IdsIn
-from schemas.role import RoleOut, RoleIn, RoleWithPermissionsOut
+from schemas.role import RoleOut, RoleIn, RoleWithPermissionsOut, RolePermissionsIn
 import services.role as role_service
 from utils.response import make_resp
 
@@ -28,8 +28,13 @@ class Role(MethodView):
         else:
             return make_resp(code, res)
 
-    @app.input(RoleIn)
+    @app.input(RolePermissionsIn)
     def patch(self, role_id: str, role_in: dict):
+        code, res = role_service.update_role(role_id, role_in)
+        return make_resp(code, res, "Updated")
+
+    @app.input(RoleIn)
+    def put(self, role_id: str, role_in: dict):
         code, res = role_service.update_role(role_id, role_in)
         return make_resp(code, res, "Updated")
 
