@@ -55,11 +55,15 @@ def find_many(model, many_ids):
     return __db.session.scalars(__db.select(model).filter(model.id.in_(many_ids))).all()
 
 
-def find_many_by(model, prop_name, prop_value):
-    """Find many by a certain prop"""
-    return __db.session.scalars(
-        __db.select(model).filter_by(**{prop_name: prop_value})
-    ).all()
+# def find_many_by(model, prop_name, prop_value):
+#     """Find many by a certain prop"""
+#     return __db.session.scalars(
+#         __db.select(model).filter_by(**{prop_name: prop_value})
+#     ).all()
+
+
+def find_many_by(model, **props):
+    return __db.session.scalars(__db.select(model).filter_by(**props)).all()
 
 
 def find_other_with_same(model, the_id, prop_name, prop_value):

@@ -101,6 +101,10 @@ def find_admin() -> User:
     return admin
 
 
+def find_users_by(props: dict):
+    return repository.find_many_by(User, **props)
+
+
 def list_all() -> list:
     return repository.list_all(User, "is_admin", True)
 

@@ -16,6 +16,11 @@ class UserOut(Schema):
     roles = Nested("RoleOut", many=True)
 
 
+class UserNameOut(Schema):
+    id = UUID()
+    name = String()
+
+
 class UserAdminIn(Schema):
     name = String(required=True)
     email = String(required=True)

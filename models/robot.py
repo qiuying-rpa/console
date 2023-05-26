@@ -17,3 +17,4 @@ class Robot(db.Model):
     desc = db.Column(db.Text)
     owner_id = db.Column(db.String(36), db.ForeignKey("user.id"))
     group_id = db.Column(db.String(36), db.ForeignKey("group.id"))
+    jobs = db.relationship("Job", backref="robot")

@@ -15,3 +15,4 @@ class ParamConfig(db.Model):
     params = db.Column(db.Text)
     user_id = db.Column(db.String(36), db.ForeignKey("user.id"))
     process_id = db.Column(db.String(36), db.ForeignKey("process.id"))
+    jobs = db.relationship("Job", backref="param_config")
