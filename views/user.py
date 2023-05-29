@@ -8,7 +8,7 @@ from apiflask.views import MethodView
 from apiflask.schemas import EmptySchema
 
 from schemas.common import IdsIn
-from schemas.user import UserAdminIn, UserOut, UserRolesIn
+from schemas.user import UserAdminIn, UserOut, UserRolesIn, UserNameOut
 import services.user as user_service
 from utils.encrypt import rsa_decrypt
 from utils.response import make_resp
@@ -58,6 +58,20 @@ class Users(MethodView):
         return make_resp(code, res, "Updated")
 
 
+class BriefUsers(MethodView):
+    # Just output  id and name
+    # Can filter by roles and action
+    @app.input(UserRolesIn, "query")
+    @app.output(UserNameOut(many=True))
+    def get(self, user_in):
+        if user_in:
+            users = user_service.find_users_by(user_in)
+        else:
+            users = user_service.list_all()
+        return make_resp(res=users)
+
+
 app.add_url_rule("/sys/user/<user_id>", view_func=User.as_view("user"))
 app.add_url_rule("/sys/user", view_func=User.as_view("createUser"))
 app.add_url_rule("/sys/users", view_func=Users.as_view("users"))
+app.add_url_rule("/sys/brief-users", view_func=BriefUsers.as_view("briefUsers"))
