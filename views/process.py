@@ -23,7 +23,7 @@ class Process(MethodView):
         code, res = process_service.create_process(
             name=process_in["name"],
             start_params=process_in.get("start_params"),
-            nodes=process_in["node"],
+            nodes=process_in["nodes"],
             desc=process_in.get("desc"),
             template=process_in.get("template"),
             developer_id=process_in.get("developer_id"),

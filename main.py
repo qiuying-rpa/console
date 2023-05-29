@@ -37,7 +37,6 @@ with app.app_context():
         importlib.import_module(vm)
 
     db.create_all()
-
     if PROD:
         import logging
         from utils.permissions import bind_auth_checker
@@ -53,11 +52,11 @@ with app.app_context():
 
         bind_dev_auth_checker(app)
 
-        if __name__ == "__main__":
-            from services.user import create_admin
-            from services.role import create_default
-            from services.auth import create_auth_keys
+    if __name__ == "__main__":
+        from services.user import create_admin
+        from services.role import create_default
+        from services.auth import create_auth_keys
 
-            create_auth_keys()
-            create_admin()
-            create_default()
+        create_auth_keys()
+        create_admin()
+        create_default()

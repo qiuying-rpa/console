@@ -30,3 +30,12 @@ class ProcessOut(Schema):
     developer = Nested("UserNameOut")
     demander = Nested("UserNameOut")
     group = Nested("GroupOut")
+
+
+class ProcessJobOut(Schema):
+    id = UUID()
+    name = String()
+    start_params = String()
+    desc = String()
+    template = String()
+    group = Nested("GroupOut")

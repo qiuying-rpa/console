@@ -6,6 +6,7 @@ Created at 2023/2/19 21:45
 from typing import Tuple, List
 from models.asset import Asset
 from utils import repository
+from flask import g
 
 
 def create_asset(name: str, asset_type: str, desc: str, value: str) -> Tuple[int, str]:
@@ -13,7 +14,14 @@ def create_asset(name: str, asset_type: str, desc: str, value: str) -> Tuple[int
     if asset_exists:
         return 1, "Asset with same name exists."
     else:
-        asset = repository.create_one(Asset, type=asset_type, desc=desc, value=value)
+        asset = repository.create_one(
+            Asset,
+            name=name,
+            type=asset_type,
+            desc=desc,
+            value=value,
+            user_id=g.current_user["id"],
+        )
         return 0, asset.id
 
 

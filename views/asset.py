@@ -21,6 +21,7 @@ class Asset(MethodView):
 
     @app.input(AssetIn)
     def post(self, asset_in):
+        print(asset_in)
         code, res = asset_service.create_asset(
             name=asset_in["name"],
             asset_type=asset_in["type"],

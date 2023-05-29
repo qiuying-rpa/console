@@ -42,6 +42,6 @@ class Groups(MethodView):
         return make_resp(res=groups)
 
 
-app.add_url_rule("/console/group/<group_id>", view_func=Group.as_view("group"))
-app.add_url_rule("/console/group", view_func=Group.as_view("createGroup"))
-app.add_url_rule("/console/groups", view_func=Groups.as_view("groups"))
+app.add_url_rule("/console/robot/group/<group_id>", view_func=Group.as_view("group"))
+app.add_url_rule("/console/robot/group", view_func=Group.as_view("createGroup"))
+app.add_url_rule("/console/robot/groups", view_func=Groups.as_view("groups"))

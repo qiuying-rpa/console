@@ -57,12 +57,12 @@ class ParamConfigs(MethodView):
 
 
 app.add_url_rule(
-    "/console/paramConfig/<param_config_id>",
+    "/console/job/paramConfig/<param_config_id>",
     view_func=ParamConfig.as_view("paramConfig"),
 )
 app.add_url_rule(
-    "/console/paramConfig", view_func=ParamConfig.as_view("createParamConfig")
+    "/console/job/paramConfig", view_func=ParamConfig.as_view("createParamConfig")
 )
 app.add_url_rule(
-    "/console/paramConfigs", view_func=ParamConfigs.as_view("paramConfigs")
+    "/console/job/paramConfigs", view_func=ParamConfigs.as_view("paramConfigs")
 )

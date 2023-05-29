@@ -21,4 +21,4 @@ class AssetOut(Schema):
     type = String()
     value = String()
     desc = String()
-    user = Nested("UserOut")
+    user = Nested("UserNameOut")

@@ -6,6 +6,7 @@ Created at 2023/5/25 14:17
 from utils import repository
 from models.param_config import ParamConfig
 import json
+from flask import g
 
 
 def create_param_config(
@@ -18,6 +19,7 @@ def create_param_config(
         params=json.dumps(params),
         desc=desc,
         process_id=process_id,
+        user_id=g.current_user["id"],
     )
     return 0, param_config.id
 
