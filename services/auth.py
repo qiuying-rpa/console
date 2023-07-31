@@ -15,10 +15,11 @@ from utils.common import get_conf, update_conf
 from utils.email import send_mail
 from utils.encrypt import gen_token, verify_token, gen_rsa_keys, rsa_decrypt
 from werkzeug.security import check_password_hash
+from sqlalchemy import select
 
 
 def login(username, password):
-    user = User.query.filter_by(email=username).first()
+    user = repository.find(select(User).filter_by(email=username), first=True)
     if user:
         verify_result = check_password_hash(user.password, rsa_decrypt(password))
         if verify_result:

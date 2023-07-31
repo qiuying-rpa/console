@@ -5,7 +5,8 @@ Created at 2023/5/26 14:31
 """
 
 from apiflask import Schema
-from apiflask.fields import String, UUID, DateTime, List, Nested
+from apiflask.fields import String, UUID, DateTime, Nested, Integer
+from apiflask.validators import Range
 
 
 class JobIn(Schema):
@@ -29,3 +30,12 @@ class JobOut(Schema):
     process = Nested("ProcessJobOut")
     robot = Nested("RobotOut")
     param_config = Nested("ParamConfigOut")
+
+
+class JobQuery(Schema):
+    id = String()
+    process_name = String()
+    status = String()
+    creator_name = String()
+    page = Integer(load_default=1)
+    size = Integer(load_default=20, validate=Range(max=50))

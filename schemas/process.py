@@ -4,7 +4,8 @@ By Ziqiu Li
 Created at 2023/5/25 14:52
 """
 from apiflask import Schema
-from apiflask.fields import String, UUID, Nested, DateTime
+from apiflask.fields import String, UUID, Nested, DateTime, Integer
+from apiflask.validators import Range
 
 
 class ProcessIn(Schema):
@@ -30,6 +31,14 @@ class ProcessOut(Schema):
     developer = Nested("UserNameOut")
     demander = Nested("UserNameOut")
     group = Nested("GroupOut")
+
+
+class ProcessQuery(Schema):
+    name = String()
+    developer_name = String()
+    group_name = String()
+    page = Integer(load_default=1)
+    size = Integer(load_default=20, validate=Range(max=50))
 
 
 class ProcessJobOut(Schema):
