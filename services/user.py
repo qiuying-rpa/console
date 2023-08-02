@@ -124,6 +124,12 @@ def update_one(user_id: str, props: dict):
         if direct_props["verification_code"] != value:
             return 2, "Invalid verification code."
         direct_props["password"] = generate_password_hash(direct_props["password"])
+    if "email" in direct_props:
+        user_with_same_email = repository.find_other_with_same(
+            User, user_id, "email", direct_props["email"]
+        )
+        if user_with_same_email:
+            return 3, "Email has already been taken."
     ret = repository.update_one(User, user_id, **direct_props)
     return ret
 

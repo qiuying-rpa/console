@@ -5,7 +5,7 @@ repos:
     - id: black
 - repo: local
   hooks:
-  - id: rm-auth-keys
+  - id: rm_auth_keys
     name: rm-auth-keys
     entry: python .git_hooks/pre_commit.py
     language: system
