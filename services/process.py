@@ -9,6 +9,7 @@ from models.user import User
 from utils import repository
 from datetime import datetime
 from flask import g
+from sqlalchemy import select
 
 
 def create_process(
@@ -21,7 +22,7 @@ def create_process(
     demander_id: str,
     group_id: str,
 ) -> tuple[int, str]:
-    process_exists = repository.find_one_by(Process, "name", name)
+    process_exists = repository.find(select(Process).filter_by(name=name))
     if process_exists:
         return 1, "Process is already exists."
     else:
@@ -49,7 +50,11 @@ def create_process(
         return 0, process.id
 
 
-def delete_many_process(process_ids: list[str]) -> None:
+def delete_process(process_id: str) -> None:
+    repository.delete_one(Process, process_id)
+
+
+def delete_processes(process_ids: list[str]) -> None:
     repository.delete_many(Process, process_ids)
 
 
@@ -79,5 +84,24 @@ def find_process(process_id: str):
         return 1, f"Process {process_id} not found."
 
 
-def list_all_processes() -> list[Process]:
-    return repository.list_all(Process)
+def find_processes(props: dict) -> list[Process]:
+    # developer_name = props.get('developer_name', '')
+    # if props.get('developer_name'):
+    #     del props['developer_name']
+    # group_name = props.get('group_name', '')
+    # if props.get('group_name'):
+    #     del props['group_name']
+    # page = props['page']
+    # del props['page']
+    # size = props['size']
+    # del props['size']
+    return repository.find(
+        select(Process)
+        .join(User, Process.developer_id == User.id)
+        .join(Group, isouter=True)
+        .filter(User.name.contains(props.get("developer_name", "")))
+        .filter(Group.name.contains(props.get("group_name", "")))
+        .filter(Process.name.contains(props.get("name", ""))),
+        page=props["page"],
+        size=props["size"],
+    )

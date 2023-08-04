@@ -20,14 +20,6 @@ class Role(MethodView):
         code, res = role_service.find_role(role_id)
         return make_resp(code, res)
 
-    @app.input(RoleIn)
-    def post(self, role_in: dict):
-        code, res = role_service.create_role(role_in["name"], role_in.get("desc"))
-        if code == 0:
-            return make_resp(res=res, msg="Created"), 201
-        else:
-            return make_resp(code, res)
-
     @app.input(RolePermissionsIn)
     def patch(self, role_id: str, role_in: dict):
         code, res = role_service.update_role(role_id, role_in)
@@ -40,6 +32,14 @@ class Role(MethodView):
 
 
 class Roles(MethodView):
+    @app.input(RoleIn)
+    def post(self, role_in: dict):
+        code, res = role_service.create_role(role_in["name"], role_in.get("desc"))
+        if code == 0:
+            return make_resp(res=res, msg="Created"), 201
+        else:
+            return make_resp(code, res)
+
     @app.output(RoleOut(many=True))
     def get(self):
         roles = role_service.list_all()
@@ -52,5 +52,4 @@ class Roles(MethodView):
 
 
 app.add_url_rule("/sys/role/<role_id>", view_func=Role.as_view("role"))
-app.add_url_rule("/sys/role", view_func=Role.as_view("create_role"))
 app.add_url_rule("/sys/roles", view_func=Roles.as_view("roles"))

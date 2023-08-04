@@ -12,7 +12,7 @@ class ParamConfigIn(Schema):
     name = String()
     params = List(Dict())
     desc = String()
-    process_id = String()
+    process_id = String(required=True)
 
 
 class ParamConfigOut(Schema):
@@ -20,3 +20,7 @@ class ParamConfigOut(Schema):
     name = String()
     params = String()
     desc = String()
+
+
+class ParamConfigQuery(Schema):
+    process_id = String(required=True)

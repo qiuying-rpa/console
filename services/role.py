@@ -4,11 +4,11 @@ Role CRUD
 By Allen Tao
 Created at 2023/4/10 11:39
 """
-import json
 
 from models.role import Role
 from utils import repository
 from utils.common import get_conf
+from sqlalchemy import select
 
 
 def find_role(role_id):
@@ -20,7 +20,7 @@ def find_role(role_id):
 
 
 def create_role(name: str, desc: str):
-    role_exists = repository.find_one_by(Role, "name", name)
+    role_exists = repository.find(select(Role).filter_by(name=name))
     if role_exists:
         return 1, "Role with same name exists."
     else:
@@ -35,9 +35,12 @@ def update_role(role_id, role_props):
             return 2, "Default role cannot be modified :/"
         else:
             if new_name := role_props.get("name"):
-                exists_role = repository.find_other_with_same(
-                    Role, role_id, "name", new_name
+                exists_role = repository.find(
+                    select(Role).filter_by(name=new_name).filter(Role.id.isnot(role_id))
                 )
+                # exists_role = repository.find_other_with_same(
+                #     Role, role_id, "name", new_name
+                # )
                 if exists_role:
                     return 3, "Role with same name already exists."
             return repository.update_one(Role, role_id, **role_props)
@@ -46,11 +49,11 @@ def update_role(role_id, role_props):
 
 
 def list_all():
-    return repository.list_all(Role)
+    return repository.find(select(Role))
 
 
 def create_default():
-    role_exists = repository.find_one_by(Role, "is_default", True)
+    role_exists = repository.find(select(Role).filter_by(is_default=True), first=True)
     if not role_exists:
         conf = get_conf().get("app")
         repository.create_one(
@@ -62,5 +65,5 @@ def create_default():
 
 
 def delete_roles(ids: list[str]):
-    default_role = repository.find_one_by(Role, "is_default", True)
+    default_role = repository.find(select(Role).filter_by(is_default=True), first=True)
     repository.delete_many(Role, list(filter(lambda x: x != default_role.id, ids)))

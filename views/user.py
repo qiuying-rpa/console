@@ -21,6 +21,13 @@ class User(MethodView):
         return make_resp(code, res)
 
     @app.input(UserAdminIn)
+    def put(self, user_id: str, user_in: dict):
+        code, res = user_service.update_one(user_id, user_in)
+        return make_resp(code, res, "Updated")
+
+
+class Users(MethodView):
+    @app.input(UserAdminIn)
     def post(self, user_in: dict):
         code, res = user_service.create_user_by_admin(
             user_in["email"],
@@ -33,13 +40,6 @@ class User(MethodView):
         else:
             return make_resp(code, res)
 
-    @app.input(UserAdminIn)
-    def put(self, user_id: str, user_in: dict):
-        code, res = user_service.update_one(user_id, user_in)
-        return make_resp(code, res, "Updated")
-
-
-class Users(MethodView):
     @app.output(UserOut(many=True))
     def get(self):
         users = user_service.list_all()
@@ -72,6 +72,5 @@ class BriefUsers(MethodView):
 
 
 app.add_url_rule("/sys/user/<user_id>", view_func=User.as_view("user"))
-app.add_url_rule("/sys/user", view_func=User.as_view("createUser"))
 app.add_url_rule("/sys/users", view_func=Users.as_view("users"))
 app.add_url_rule("/sys/brief-users", view_func=BriefUsers.as_view("briefUsers"))

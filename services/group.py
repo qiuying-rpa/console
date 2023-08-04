@@ -6,10 +6,11 @@ Created at 2023/5/25 13:51
 
 from utils import repository
 from models.group import Group
+from sqlalchemy import select
 
 
 def create_group(name: str, desc: str = "") -> tuple[int, str]:
-    group = repository.find_one_by(Group, "name", name)
+    group = repository.find(select(Group).filter_by(name=name), first=True)
     if group:
         return 1, "Group with same name exists."
     else:
@@ -17,7 +18,11 @@ def create_group(name: str, desc: str = "") -> tuple[int, str]:
         return 0, group.id
 
 
-def delete_many_group(group_ids: list[str]) -> None:
+def delete_group(group_id: str) -> None:
+    repository.delete_one(Group, group_id)
+
+
+def delete_groups(group_ids: list[str]) -> None:
     repository.delete_many(Group, group_ids)
 
 
@@ -33,5 +38,9 @@ def find_group(group_id: str) -> tuple[int, str]:
         return 1, f"Group {group_id} not found."
 
 
-def list_all_group():
-    return repository.list_all(Group)
+def find_groups(props: dict) -> list[Group]:
+    return repository.find(
+        select(Group).filter(Group.name.contains(props.get("name", ""))),
+        page=props["page"],
+        size=props["size"],
+    )

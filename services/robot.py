@@ -8,6 +8,7 @@ from utils import repository
 from models.robot import Robot
 from models.group import Group
 from models.user import User
+from sqlalchemy import select
 
 
 def create_robot(
@@ -22,7 +23,7 @@ def create_robot(
         if owner is None:
             return 3, f"Owner {owner_id} not found"
 
-    robot = repository.find_one_by(Robot, "name", name)
+    robot = repository.find(select(Robot).filter_by(name=name))
     if robot:
         return 1, "Robot with same name exists."
     else:
@@ -38,7 +39,11 @@ def create_robot(
         return 0, robot.id
 
 
-def delete_many_robots(robot_ids: list[str]) -> None:
+def delete_robot(robot_id: str) -> None:
+    repository.delete_one(Robot, robot_id)
+
+
+def delete_robots(robot_ids: list[str]) -> None:
     repository.delete_many(Robot, robot_ids)
 
 
@@ -62,9 +67,12 @@ def find_robot(robot_id):
         return 1, f"Robot {robot_id} not found."
 
 
-def list_all_robot():
-    return repository.list_all(Robot)
-
-
-def find_robots_by(props: dict):
-    return repository.find_many_by(Robot, **props)
+def find_robots(props: dict):
+    return repository.find(
+        select(Robot)
+        .join(Group, isouter=True)
+        .filter(Group.name.contains(props.get("group_name", "")))
+        .filter(Robot.name.contains(props.get("name", ""))),
+        page=props["page"],
+        size=props["size"],
+    )

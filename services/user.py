@@ -10,6 +10,8 @@ from utils import repository
 from utils.common import get_conf
 from utils.repository import use_db
 from werkzeug.security import generate_password_hash
+from sqlalchemy import select
+
 
 db = use_db()
 
@@ -20,7 +22,7 @@ def create_user_by_self(
     name: str,
     verification_code: str,
 ) -> tuple[int, str]:
-    user = repository.find_one_by(User, "email", email)
+    user = repository.find(select(User).filter_by(email=email), first=True)
     if user:
         return 1, "Email already used."
     else:
@@ -41,7 +43,9 @@ def create_user_by_self(
         )
 
         # give default role
-        default_role = repository.find_one_by(Role, "is_default", True)
+        default_role = repository.find(
+            select(Role).filter_by(is_default=True), first=True
+        )
         if default_role:
             user.roles.append(default_role)
             db.session.commit()
@@ -53,13 +57,13 @@ def create_user_by_self(
 def create_user_by_admin(email: str, password: str, name: str, roles=None):
     if roles is None:
         roles = []
-    user_exists = repository.find_one_by(User, "email", email)
+    user_exists = repository.find(select(User).filter_by(email=email), first=True)
     if user_exists:
         return 1, "Email already used."
     else:
         user = repository.create_one(User, email=email, password=password, name=name)
 
-        roles = repository.find_many(Role, roles)
+        roles = repository.find(select(Role).filter(Role.id.in_(roles)))
         if len(roles) > 0:
             user.roles = roles
             db.session.commit()
@@ -97,16 +101,16 @@ def find_user(user_id: str):
 
 
 def find_admin() -> User:
-    admin = repository.find_one_by(User, "is_admin", True)
+    admin = repository.find(select(User).filter_by(is_admin=True), first=True)
     return admin
 
 
 def find_users_by(props: dict):
-    return repository.find_many_by(User, **props)
+    return repository.find(select(User).filter_by(**props))
 
 
 def list_all() -> list:
-    return repository.list_all(User, "is_admin", True)
+    return repository.find(select(User).filter_by(is_admin=True))
 
 
 def update_one(user_id: str, props: dict):
@@ -114,7 +118,7 @@ def update_one(user_id: str, props: dict):
     direct_props = {**props}
     if "roles" in direct_props:
         del direct_props["roles"]
-        roles = repository.find_many(Role, props["roles"])
+        roles = repository.find(select(Role).filter(Role.id.in_(props["roles"])))
         user.roles = roles
         db.session.commit()
     if "password" in direct_props:
@@ -139,14 +143,17 @@ def delete_many(user_ids: list[str]) -> None:
 
 
 def update_roles(user_ids: list[str], roles: list[str], action: ActionEnum):
-    users = repository.find_many(User, user_ids)
+    users = repository.find(select(User).filter(User.id.in_(user_ids)))
     if action == ActionEnum.ADD:
         for user in users:
             roles_to_add = list(
                 filter(lambda x: all(map(lambda _x: _x.id != x, user.roles)), roles)
             )
             print(roles_to_add)
-            [user.roles.append(r) for r in repository.find_many(Role, roles_to_add)]
+            [
+                user.roles.append(r)
+                for r in repository.find(select(Role).filter(Role.id.in_(roles_to_add)))
+            ]
     else:
         for user in users:
             user.roles = list(

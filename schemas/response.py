@@ -12,3 +12,4 @@ class BaseResponse(Schema):
     data = Field()
     message = String()
     time = String()
+    total = Integer()
